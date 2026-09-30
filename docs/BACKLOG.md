@@ -58,6 +58,33 @@ Editable via GitHub web dari HP.
 - Deployed to Vercel: https://gugi-os-dashboard.vercel.app
 - Full CI/CD pipeline: git push → auto-deploy
 
+## Sprint 2 - IN PROGRESS
+
+### Hermes side - DONE (2026-10-01)
+- ✅ Tabel content_pipeline live (23 kolom)
+- ✅ 16 row initial data populated
+- ✅ Management API access enabled untuk autonomous migration
+
+### Dashboard side - PENDING
+- [ ] View Kanban (group by stage): Ideas → Drafts → Ready → Scheduled → Published
+- [ ] View Kalender (group by scheduled_at / published_at)
+- [ ] Style: Preset C (left status stripe card)
+- [ ] Landing page update: nav ke /content
+
+## Backlog (future sprints)
+
+### Infrastructure
+- Approval workflow bidirectional (dashboard klik → Hermes react)
+- Multi-agent activation (agent-writer, agent-producer beneran run)
+- Auto-post ke LinkedIn (Maton API) + IG (Composio)
+
+### Security
+- Rotate Supabase Management token tiap 90 hari (next: ~24 Dec 2026)
+
+### Polish
+- Naming consistency policy Supabase: "Allow public read" vs 
+  "Allow public read access to cron_jobs" — standardize
+
 ## 📝 How to Use This File
 
 - **Idea baru**? Tulis di "Ideas" section. Gak perlu detail, cukup 
