@@ -64,7 +64,7 @@ project, working preferences Gugi, dan non-negotiable rules.
 - Why Supabase over VPS: no sysadmin burden, managed Postgres + 
   Realtime + Auth
 - Why Vercel: zero-config Next.js deploy, free tier sufficient
-- Why 25-field schema for cron_jobs: governance context enables 
+- Why 27-field schema for cron_jobs: governance context enables 
   long-term maintenance, not just monitoring
 - Why RLS from Sprint 1: security best practice, easier to add policy 
   than retrofit

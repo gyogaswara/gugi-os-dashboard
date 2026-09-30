@@ -3,6 +3,9 @@
 Personal mission control dashboard untuk monitor Hermes Agent.
 Dibangun dengan Next.js + Supabase, di-hosting di Vercel.
 
-Status: Pre-development
+Dashboard ini ngasih visibility ke state Hermes Agent dari luar: status cron job,
+jadwal, hasil run terakhir, dan governance context tiap job.
+
+Status: Live (Sprint 1)
 Tanggal mulai: 30 September 2026
-Deployment: Vercel (pending first deploy)
+Deployment: https://gugi-os-dashboard.vercel.app
