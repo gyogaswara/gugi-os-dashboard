@@ -47,7 +47,7 @@ Editable via GitHub web dari HP.
 
 ### Sept 30, 2026 — Sprint 1: Cron Monitor LIVE
 - Supabase project provisioned (region Seoul)
-- Table cron_jobs dengan 25-field governance schema
+- Table cron_jobs dengan 27-field governance schema
 - 26 real cron dari Hermes populated
 - RLS enabled + SELECT policy untuk anon
 - Next.js 15 project init dengan TypeScript + Tailwind
