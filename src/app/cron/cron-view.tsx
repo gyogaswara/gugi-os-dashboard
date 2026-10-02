@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import type { CronJob, CronJobCategory, CronJobStatus } from "@/lib/types";
-import ActionButtons from "@/components/action-buttons";
+import ActionButtons, { ActionMenu } from "@/components/action-buttons";
 import { cronActions } from "@/lib/prompts";
 import {
   Badge,
@@ -112,7 +112,6 @@ function CronDetail({ job }: { job: CronJob }) {
             </p>
           </div>
         ))}
-      <ActionButtons actions={cronActions(job)} />
     </div>
   );
 }
@@ -230,6 +229,7 @@ export default function CronView() {
                       <th className="px-4 py-2 font-medium">Schedule</th>
                       <th className="px-4 py-2 font-medium">Agent</th>
                       <th className="px-4 py-2 font-medium">Last Run</th>
+                      <th className="px-4 py-2 font-medium">Prompt</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -253,10 +253,13 @@ export default function CronView() {
                           <td className="px-4 py-2 whitespace-nowrap">
                             <LastRun job={job} />
                           </td>
+                          <td className="px-4 py-2">
+                            <ActionMenu actions={cronActions(job)} />
+                          </td>
                         </tr>
                         {expandedId === job.id && (
                           <tr className="bg-gray-50">
-                            <td colSpan={7} className="px-4 py-3">
+                            <td colSpan={8} className="px-4 py-3">
                               <CronDetail job={job} />
                             </td>
                           </tr>
@@ -302,6 +305,9 @@ export default function CronView() {
                         </dd>
                       </dl>
                     </button>
+                    <div className="px-4 pb-4">
+                      <ActionButtons actions={cronActions(job)} />
+                    </div>
                     {expandedId === job.id && (
                       <div className="border-t border-gray-200 bg-gray-50 px-4 py-3">
                         <CronDetail job={job} />

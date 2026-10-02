@@ -164,7 +164,31 @@ export function cronActions(job: CronJob): PromptAction[] {
     ["Last run", job.last_run_at ? `${job.last_run_at} (${job.last_run_status ?? "unknown"})` : null],
     ["Last error", job.last_run_error],
   ];
-  const actions: PromptAction[] = [];
+  const actions: PromptAction[] = [
+    {
+      id: "check-status",
+      label: "Cek status",
+      prompt: build(
+        `Hermes, give me a status check for cron ${job.code}.`,
+        base,
+        `Report: (1) the last 5 runs from agent_executions for this cron, with status and delivery result, (2) whether delivery actually reached its destination, (3) whether cron_jobs.next_run_at matches the real next schedule, and (4) anything that looks wrong. This is read-only: do not change anything.`,
+      ),
+    },
+  ];
+
+  // Cron selesai tidak dijalankan ulang. Run manual bisa kirim pesan sungguhan
+  // (Telegram/WhatsApp), jadi wajib konfirmasi dulu.
+  if (job.status !== "completed") {
+    actions.push({
+      id: "run-now",
+      label: "Jalankan sekarang",
+      prompt: build(
+        `Hermes, I want to run cron ${job.code} once, right now.`,
+        base,
+        `Rule: this is a 2-step flow. STEP 1: tell me what this run will do, where it will deliver (channel/destination), and whether a manual run now would cause a duplicate delivery. Do NOT run it yet. STEP 2: only after I reply "approve", run it once, then report the output and delivery result. Do not change the schedule or config, and make sure agent_executions records this run with the correct status (error if delivery failed).`,
+      ),
+    });
+  }
 
   if (job.last_run_status === "failed") {
     actions.push({

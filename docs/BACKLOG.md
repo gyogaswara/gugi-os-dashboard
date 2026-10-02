@@ -81,6 +81,11 @@ Editable via GitHub web dari HP.
 
 ## ✅ Done
 
+### Oct 2, 2026 — Tombol prompt di semua cron
+- Tiap cron punya menu "Prompt" (desktop) / tombol langsung (mobile): "Cek status" (read-only), "Jalankan sekarang" (2-step, konfirmasi dulu karena run manual bisa kirim pesan sungguhan), plus "Investigasi gagal" dan "Review governance" sesuai kondisi
+- Komponen ActionMenu (dropdown posisi fixed) di action-buttons.tsx
+- Prompt patch status error buat Hermes: docs/prompts/hermes-patch-status-error.md (belum dijalankan Gugi)
+
 ### Oct 2, 2026 — Sync health indicator + /sync-log
 - Tabel sync_log (setup Hermes): heartbeat sync Hermes → Supabase. Cron harian 06:00 WIB (cron_jobs + agents), manual on-demand (4 tabel)
 - Komponen SyncHealthIndicator di header Brief: hijau (<24 jam + success), kuning (24-72 jam atau partial), merah (>72 jam atau failed), abu-abu (belum ada row / query gagal). Klik buka /sync-log
