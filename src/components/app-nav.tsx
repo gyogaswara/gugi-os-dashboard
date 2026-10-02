@@ -13,7 +13,7 @@ type NavEntry = {
 };
 
 const NAV: NavEntry[] = [
-  { href: "/", label: "Home", icon: LayoutDashboard },
+  { href: "/", label: "Brief", icon: LayoutDashboard },
   { href: "/cron", label: "Cron Jobs", icon: Clock },
   { href: "/agents", label: "Agents", icon: Bot },
   { href: "/tasks", label: "Tasks", icon: ListChecks },

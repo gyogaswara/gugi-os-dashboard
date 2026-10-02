@@ -6,7 +6,7 @@
  * Aksi yang menulis data memakai pola 2 langkah: Hermes tunjukkan dulu,
  * baru eksekusi setelah Gugi approve.
  */
-import type { Agent, AgentExecution, ContentItem } from "@/lib/types";
+import type { Agent, AgentExecution, ContentItem, CronJob } from "@/lib/types";
 
 export type PromptAction = {
   id: string;
@@ -140,4 +140,63 @@ export function agentActions(agent: Agent): PromptAction[] {
       ),
     },
   ];
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const REVIEW_INTERVAL_DAYS: Record<string, number> = { weekly: 7, monthly: 30, quarterly: 90 };
+
+/** Review dianggap lewat jadwal kalau belum pernah direview atau melewati interval frekuensinya. */
+function reviewOverdue(job: CronJob): boolean {
+  const days = job.review_frequency ? REVIEW_INTERVAL_DAYS[job.review_frequency] : undefined;
+  if (!days) return false; // on-demand: tidak ada jadwal review
+  if (!job.last_reviewed_at) return true;
+  return Date.now() - new Date(job.last_reviewed_at).getTime() > days * DAY_MS;
+}
+
+export function cronActions(job: CronJob): PromptAction[] {
+  const base: [string, string | null | undefined][] = [
+    ["Code", job.code],
+    ["Name", job.name],
+    ["Agent", job.agent_name],
+    ["Schedule", job.schedule_human],
+    ["Hermes job ID", job.hermes_job_id],
+    ["Status", job.status],
+    ["Last run", job.last_run_at ? `${job.last_run_at} (${job.last_run_status ?? "unknown"})` : null],
+    ["Last error", job.last_run_error],
+  ];
+  const actions: PromptAction[] = [];
+
+  if (job.last_run_status === "failed") {
+    actions.push({
+      id: "investigate-failure",
+      label: "Investigasi gagal",
+      prompt: build(
+        `Hermes, investigate why cron ${job.code} failed on its last run.`,
+        base,
+        "Find the root cause from the run logs and propose a fix. This is read-only: do not change the cron, its config, or Supabase until I approve your proposed fix.",
+      ),
+    });
+  }
+
+  if (job.status !== "completed" && reviewOverdue(job)) {
+    actions.push({
+      id: "review-governance",
+      label: "Review governance",
+      prompt: build(
+        `Hermes, run a governance review for cron ${job.code}.`,
+        [
+          ...base,
+          ["Review frequency", job.review_frequency],
+          ["Last reviewed", job.last_reviewed_at ?? "never"],
+          ["Background", job.background],
+          ["Process steps", job.process_steps],
+        ],
+        `Check whether the background, process steps, skills, and schedule still match how this cron actually runs, and whether it should be kept, merged, or paused.
+${TWO_STEP_RULE}
+On approve: UPDATE cron_jobs SET last_reviewed_at=now() WHERE code='${job.code}' (plus any governance field corrections we agreed on).`,
+      ),
+    });
+  }
+
+  return actions;
 }

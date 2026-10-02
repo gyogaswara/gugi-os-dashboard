@@ -20,6 +20,9 @@ Editable via GitHub web dari HP.
   - [ ] Push notif ke Telegram tiap ada approval baru
 
 ### Infrastructure Fixes (Gugi side)
+- [ ] Hermes: refresh cron_jobs.next_run_at tiap cron jalan (12 active cron punya next_run_at lewat, Brief jadi cuma nampilin yang masih future)
+- [ ] Hermes: isi cron_jobs.last_reviewed_at saat governance review (sekarang kosong di 26 cron, jadi semua kena "Review governance")
+- [ ] Investigasi LVN-004 Signal Hunter (last run failed 13 hari lalu)
 - [ ] Fix Telegram thread 11681 (INBOX cron)
 - [ ] Fix Telegram thread 11345 (CNT-PUB cron)
 - [ ] Hermes: delivery gagal harus dicatat status `error`, bukan `ok` 
@@ -35,7 +38,6 @@ Editable via GitHub web dari HP.
 ## 💡 Ideas (Belum di-Prioritize)
 
 ### Feature Ideas
-- Tombol aksi di /cron (failed → investigasi, lewat jadwal review → review governance) — ikut saat /cron di-polish ke pattern dashboard-ui
 - Pindahkan template prompt ke tabel prompt_templates kalau sudah stabil (editable dari HP)
 - Sidebar desktop bisa dilipat jadi mode ikon
 - Mobile responsive polish untuk /cron page (mostly OK tapi bisa lebih baik)
@@ -78,6 +80,12 @@ Editable via GitHub web dari HP.
 - API buat external system query cron status Gugi
 
 ## ✅ Done
+
+### Oct 2, 2026 — /cron polish + Today's Brief
+- /cron: dipindah ke pattern /agents + /tasks (summary cards, filter category + status, search, mobile card view, expand row buat governance detail lengkap)
+- Tombol aksi di /cron: "Investigasi gagal" (last run failed), "Review governance" (belum pernah direview atau lewat interval weekly/monthly/quarterly; on-demand tidak dihitung)
+- Home / jadi Today's Brief (versi internal): Needs attention (cron gagal + eksekusi dengan error + data basi) lengkap dengan tombol aksi, summary 4 area, upcoming crons, recent executions, content pipeline, agents
+- Nav: label Home → Brief
 
 ### Oct 2, 2026 — Navigation + Action Buttons
 - Navigasi global: sidebar kiri di desktop, bottom tab bar di mobile (Home, Cron, Agents, Tasks, Content). Approvals tampil "soon" di sidebar saja
