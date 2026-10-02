@@ -165,3 +165,34 @@ export interface AgentExecution {
   metadata: Record<string, unknown> | null;
   created_at: string;
 }
+
+/** Stage pipeline konten, berurutan dari awal sampai akhir. */
+export type ContentStage = "idea" | "draft" | "ready" | "scheduled" | "published" | "archived";
+
+/** Satu row di tabel `content_pipeline`: pipeline konten dari ide sampai publish. */
+export interface ContentItem {
+  id: string;
+  /** Kode unik konten, contoh: "CNT-202609-001". */
+  code: string;
+  title: string;
+  title_final: string | null;
+  body_preview: string;
+  body_full: string | null;
+  media_urls: string[] | null;
+  stage: ContentStage;
+  status: "new" | "in_progress" | "done" | string;
+  channel: string;
+  angle: string | null;
+  content_type: string;
+  source_agent: string | null;
+  source_cron_code: string | null;
+  source_file_path: string | null;
+  source_type: string;
+  scheduled_at: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  reviewer_notes: string | null;
+  performance_summary: string | null;
+  tags: string[] | null;
+}

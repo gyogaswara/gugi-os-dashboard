@@ -5,12 +5,7 @@ Editable via GitHub web dari HP.
 
 ## 🎯 Next (Sedang Dikerjakan atau Siap Dieksekusi)
 
-### Sprint 2 — IN PROGRESS (sisa: Content Pipeline UI)
-Backend + /agents + /tasks udah selesai (lihat Done). Tinggal:
-- [ ] /content page — View Kanban (group by stage): Ideas → Drafts → Ready → Scheduled → Published
-- [ ] /content page — View Kalender (group by scheduled_at / published_at)
-- [ ] Style: Preset C (left status stripe card)
-- [ ] Landing page: aktifin link ke /content (placeholder "coming soon" udah ada)
+### Sprint 2 — DONE (lihat Done, Oct 2)
 
 ### Sprint 3 — Orchestration Governance
 - [ ] Hermes design unified task_id system
@@ -81,7 +76,13 @@ Backend + /agents + /tasks udah selesai (lihat Done). Tinggal:
 
 ## ✅ Done
 
-### Oct 1–2, 2026 — Sprint 2 (partial): Agents + Execution Log
+### Oct 2, 2026 — Sprint 2: Content Pipeline UI
+- Halaman /content — Kanban (6 stage, Archived dilipat) + Kalender (bulan, fallback scheduled_at → published_at, bucket Undated)
+- Preset C (card dengan stripe warna kiri per stage), filter channel + status + search, expand card inline
+- Landing page: link Content Pipeline aktif
+- Catatan: scheduled_at masih kosong di semua row, jadi Kalender saat ini pakai published_at
+
+### Oct 1–2, 2026 — Sprint 2: Agents + Execution Log
 Backend (Hermes side, Oct 1):
 - Tabel content_pipeline live (23 kolom, 16 rows initial data)
 - Supabase Management API setup (Hermes autonomous DDL/migration)

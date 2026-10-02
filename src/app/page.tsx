@@ -11,7 +11,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/cron", label: "Cron Jobs", subtitle: "Scheduled jobs monitor" },
   { href: "/agents", label: "Agents", subtitle: "14 registered" },
   { href: "/tasks", label: "Tasks", subtitle: "Execution log" },
-  { href: "/content", label: "Content Pipeline", comingSoon: true },
+  { href: "/content", label: "Content Pipeline", subtitle: "Kanban + calendar" },
   { href: "/approvals", label: "Approval Inbox", comingSoon: true },
   { href: "/", label: "Today's Brief", comingSoon: true },
 ];
