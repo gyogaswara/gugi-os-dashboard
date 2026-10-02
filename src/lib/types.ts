@@ -117,3 +117,51 @@ export type CronJob = {
   /** Waktu row terakhir di-update (ISO 8601), di-set otomatis oleh trigger. */
   updated_at: string | null;
 };
+
+/** Satu row di tabel `agents`: registry agent Hermes. */
+export interface Agent {
+  id: string;
+  /** Kode unik agent, contoh: "AGT-001". */
+  agent_code: string;
+  agent_name: string;
+  status: "active" | "idle" | "deprecated";
+  model: string | null;
+  scope_description: string | null;
+  skills_attached: string[] | null;
+  /** Kode cron yang di-handle agent ini. */
+  cron_attached: string[] | null;
+  last_run_at: string | null;
+  total_runs_count: number | null;
+  reviewer_notes: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Satu row di tabel `agent_executions`: log eksekusi agent. */
+export interface AgentExecution {
+  id: string;
+  hermes_job_id: string | null;
+  hermes_message_id: string | null;
+  agent_name: string;
+  execution_type: "cron" | "chat" | "manual" | "chain";
+  /** Kode cron sumber eksekusi (kalau execution_type = "cron"). */
+  raw_cron_code: string | null;
+  schedule_expression: string | null;
+  schedule_human: string | null;
+  status: "ok" | "error" | "running" | "unknown";
+  started_at: string;
+  completed_at: string | null;
+  duration_seconds: number | null;
+  output_destination: string | null;
+  delivery_channel: string | null;
+  model_used: string | null;
+  skills_used: string[] | null;
+  /** Eksekusi lain yang jadi input konteks (untuk chain). */
+  context_from: string[] | null;
+  error_message: string | null;
+  input_summary: string | null;
+  output_summary: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
