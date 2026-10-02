@@ -196,3 +196,22 @@ export interface ContentItem {
   performance_summary: string | null;
   tags: string[] | null;
 }
+
+/** Satu row di tabel `sync_log`: heartbeat sync Hermes → Supabase. */
+export interface SyncLog {
+  id: string;
+  sync_type: "cron" | "manual";
+  /** Kode cron atau timestamp manual yang memicu sync. */
+  trigger_source: string | null;
+  started_at: string;
+  completed_at: string | null;
+  status: "success" | "partial" | "failed";
+  tables_synced: string[] | null;
+  tables_failed: string[] | null;
+  total_rows_inserted: number | null;
+  total_rows_updated: number | null;
+  total_rows_skipped: number | null;
+  error_message: string | null;
+  duration_seconds: number | null;
+  metadata: Record<string, unknown> | null;
+}

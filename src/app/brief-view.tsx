@@ -6,6 +6,7 @@ import { formatDistanceToNow, parseISO, subDays } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import type { Agent, AgentExecution, ContentItem, CronJob } from "@/lib/types";
 import ActionButtons from "@/components/action-buttons";
+import SyncHealthIndicator from "@/components/sync-health-indicator";
 import { cronActions, executionActions } from "@/lib/prompts";
 import {
   Badge,
@@ -138,9 +139,12 @@ export default function BriefView() {
 
   return (
     <main className="mx-auto max-w-6xl p-4 md:p-8">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold">{brief ? `${greeting}, Gugi` : "Today's Brief"}</h1>
-        <p className="text-sm text-gray-500">{brief ? date : "Loading…"}</p>
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{brief ? `${greeting}, Gugi` : "Today's Brief"}</h1>
+          <p className="text-sm text-gray-500">{brief ? date : "Loading…"}</p>
+        </div>
+        <SyncHealthIndicator />
       </header>
 
       {error ? (

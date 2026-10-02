@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, Clock, FileText, Inbox, LayoutDashboard, ListChecks, type LucideIcon } from "lucide-react";
+import {
+  Bot,
+  Clock,
+  FileText,
+  Inbox,
+  LayoutDashboard,
+  ListChecks,
+  RefreshCw,
+  type LucideIcon,
+} from "lucide-react";
 
 type NavEntry = {
   href: string;
@@ -10,6 +19,8 @@ type NavEntry = {
   icon: LucideIcon;
   /** Halaman belum dibangun: tampil abu-abu di sidebar, tidak bisa diklik. */
   comingSoon?: boolean;
+  /** Cuma di sidebar desktop; tab bar mobile penuh (akses lewat indikator sync di Brief). */
+  desktopOnly?: boolean;
 };
 
 const NAV: NavEntry[] = [
@@ -18,6 +29,7 @@ const NAV: NavEntry[] = [
   { href: "/agents", label: "Agents", icon: Bot },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
   { href: "/content", label: "Content", icon: FileText },
+  { href: "/sync-log", label: "Sync Log", icon: RefreshCw, desktopOnly: true },
   { href: "/approvals", label: "Approvals", icon: Inbox, comingSoon: true },
 ];
 
@@ -74,7 +86,7 @@ export default function AppNav() {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-20 flex border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
       >
-        {NAV.filter((n) => !n.comingSoon).map(({ href, label, icon: Icon }) => (
+        {NAV.filter((n) => !n.comingSoon && !n.desktopOnly).map(({ href, label, icon: Icon }) => (
           <Link
             key={label}
             href={href}

@@ -81,6 +81,13 @@ Editable via GitHub web dari HP.
 
 ## ✅ Done
 
+### Oct 2, 2026 — Sync health indicator + /sync-log
+- Tabel sync_log (setup Hermes): heartbeat sync Hermes → Supabase. Cron harian 06:00 WIB (cron_jobs + agents), manual on-demand (4 tabel)
+- Komponen SyncHealthIndicator di header Brief: hijau (<24 jam + success), kuning (24-72 jam atau partial), merah (>72 jam atau failed), abu-abu (belum ada row / query gagal). Klik buka /sync-log
+- Halaman /sync-log: summary, filter type + status, tabel (mobile card), expand detail (error lengkap + metadata), "Show more" per 25 row
+- Logika level di src/lib/sync-health.ts (murni, dites dengan 8 skenario)
+- Catatan: sync_log masih kosong saat deploy, jadi indikator tampil abu-abu "Sync not configured" sampai sync pertama jalan
+
 ### Oct 2, 2026 — /cron polish + Today's Brief
 - /cron: dipindah ke pattern /agents + /tasks (summary cards, filter category + status, search, mobile card view, expand row buat governance detail lengkap)
 - Tombol aksi di /cron: "Investigasi gagal" (last run failed), "Review governance" (belum pernah direview atau lewat interval weekly/monthly/quarterly; on-demand tidak dihitung)
