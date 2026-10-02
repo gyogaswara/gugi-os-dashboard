@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AppNav from "@/components/app-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AppNav />
+        {/* Ruang buat sidebar (desktop) dan bottom tab bar (mobile) */}
+        <div className="pb-16 md:pb-0 md:pl-52">{children}</div>
       </body>
     </html>
   );

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import ActionButtons from "@/components/action-buttons";
+import { agentActions } from "@/lib/prompts";
 import type { Agent } from "@/lib/types";
 import {
   Badge,
@@ -135,6 +137,7 @@ export default function AgentsView() {
                       <th className="px-4 py-2 text-right font-medium">Skills</th>
                       <th className="px-4 py-2 text-right font-medium">Cron</th>
                       <th className="px-4 py-2 font-medium">Last Run</th>
+                      <th className="px-4 py-2 font-medium">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -157,6 +160,9 @@ export default function AgentsView() {
                         <td className="px-4 py-2 text-right">{agent.skills_attached?.length ?? 0}</td>
                         <td className="px-4 py-2 text-right">{agent.cron_attached?.length ?? 0}</td>
                         <td className="px-4 py-2 whitespace-nowrap">{lastRun(agent.last_run_at)}</td>
+                        <td className="px-4 py-2">
+                          <ActionButtons actions={agentActions(agent)} />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -190,6 +196,11 @@ export default function AgentsView() {
                       <dt className="text-gray-500">Last Run</dt>
                       <dd>{lastRun(agent.last_run_at)}</dd>
                     </dl>
+                    {agentActions(agent).length > 0 && (
+                      <div className="mt-3">
+                        <ActionButtons actions={agentActions(agent)} />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

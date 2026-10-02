@@ -35,6 +35,9 @@ Editable via GitHub web dari HP.
 ## 💡 Ideas (Belum di-Prioritize)
 
 ### Feature Ideas
+- Tombol aksi di /cron (failed → investigasi, lewat jadwal review → review governance) — ikut saat /cron di-polish ke pattern dashboard-ui
+- Pindahkan template prompt ke tabel prompt_templates kalau sudah stabil (editable dari HP)
+- Sidebar desktop bisa dilipat jadi mode ikon
 - Mobile responsive polish untuk /cron page (mostly OK tapi bisa lebih baik)
 - Filter/search di /cron (by category, by status, by agent)
 - Group cron jobs by category dengan collapsible sections
@@ -75,6 +78,11 @@ Editable via GitHub web dari HP.
 - API buat external system query cron status Gugi
 
 ## ✅ Done
+
+### Oct 2, 2026 — Navigation + Action Buttons
+- Navigasi global: sidebar kiri di desktop, bottom tab bar di mobile (Home, Cron, Agents, Tasks, Content). Approvals tampil "soon" di sidebar saja
+- Tombol aksi "copy prompt ke Hermes" (dashboard tetap read-only, Gugi paste manual ke Telegram): content idea → draft, content draft → review, published (LinkedIn/Threads) → tarik performa, task dengan error_message → diagnosa, agent idle → cek kesiapan
+- Template prompt hardcoded di src/lib/prompts.ts, campur Indonesia + Inggris, aksi tulis pakai pola 2-step (show dulu, eksekusi setelah approve)
 
 ### Oct 2, 2026 — Sprint 2: Content Pipeline UI
 - Halaman /content — Kanban (6 stage, Archived dilipat) + Kalender (bulan, fallback scheduled_at → published_at, bucket Undated)

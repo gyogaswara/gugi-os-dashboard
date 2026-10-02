@@ -3,6 +3,8 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import ActionButtons from "@/components/action-buttons";
+import { executionActions } from "@/lib/prompts";
 import type { AgentExecution } from "@/lib/types";
 import {
   Badge,
@@ -75,16 +77,21 @@ function ExecutionDetail({ execution }: { execution: AgentExecution }) {
     ["Hermes job ID", execution.hermes_job_id],
   ];
   return (
-    <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
-      {items.map(([label, value]) => (
-        <Fragment key={label}>
-          <dt className="text-gray-500">{label}</dt>
-          <dd className={`break-all ${label === "Error" && value ? "text-red-700" : ""}`}>
-            {value ?? "—"}
-          </dd>
-        </Fragment>
-      ))}
-    </dl>
+    <>
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+        {items.map(([label, value]) => (
+          <Fragment key={label}>
+            <dt className="text-gray-500">{label}</dt>
+            <dd className={`break-all ${label === "Error" && value ? "text-red-700" : ""}`}>
+              {value ?? "—"}
+            </dd>
+          </Fragment>
+        ))}
+      </dl>
+      <div className="mt-3">
+        <ActionButtons actions={executionActions(execution)} />
+      </div>
+    </>
   );
 }
 

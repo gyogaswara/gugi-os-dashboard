@@ -15,6 +15,8 @@ import {
   subMonths,
 } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import ActionButtons from "@/components/action-buttons";
+import { contentActions } from "@/lib/prompts";
 import type { ContentItem, ContentStage } from "@/lib/types";
 import {
   Badge,
@@ -84,6 +86,8 @@ function ContentCard({ item }: { item: ContentItem }) {
     ["Published", item.published_at ? format(parseISO(item.published_at), "d MMM yyyy HH:mm") : null],
   ];
 
+  const actions = contentActions(item);
+
   return (
     <li className={`rounded border border-l-4 border-gray-200 bg-white ${STAGE_STRIPE[item.stage]}`}>
       <button
@@ -102,6 +106,11 @@ function ContentCard({ item }: { item: ContentItem }) {
         </p>
         {!open && <p className="mt-1 text-xs text-gray-600">{truncate(item.body_preview, 90)}</p>}
       </button>
+      {actions.length > 0 && (
+        <div className="px-3 pb-3">
+          <ActionButtons actions={actions} />
+        </div>
+      )}
       {open && (
         <div className="border-t border-gray-200 p-3 text-xs">
           <p className="whitespace-pre-wrap text-gray-700">{item.body_full ?? item.body_preview}</p>
