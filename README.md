@@ -9,3 +9,4 @@ jadwal, hasil run terakhir, dan governance context tiap job.
 Status: Live (Sprint 1)
 Tanggal mulai: 30 September 2026
 Deployment: https://gugi-os-dashboard.vercel.app
+
