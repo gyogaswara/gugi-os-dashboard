@@ -16,6 +16,8 @@ import {
 } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import ActionButtons from "@/components/action-buttons";
+import BulkActionBar from "@/components/bulk-action-bar";
+import { contentBulkActions } from "@/lib/bulk-prompts";
 import { contentActions } from "@/lib/prompts";
 import type { ContentItem, ContentStage } from "@/lib/types";
 import {
@@ -73,7 +75,15 @@ function itemDate(item: ContentItem): Date | null {
 }
 
 /** Card dengan stripe warna kiri per stage (Preset C); klik untuk expand inline. */
-function ContentCard({ item }: { item: ContentItem }) {
+function ContentCard({
+  item,
+  picked,
+  onPick,
+}: {
+  item: ContentItem;
+  picked: boolean;
+  onPick: (id: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const details: [string, string | null][] = [
     ["Angle", item.angle],
@@ -89,7 +99,18 @@ function ContentCard({ item }: { item: ContentItem }) {
   const actions = contentActions(item);
 
   return (
-    <li className={`rounded border border-l-4 border-gray-200 bg-white ${STAGE_STRIPE[item.stage]}`}>
+    <li
+      className={`relative rounded border border-l-4 border-gray-200 bg-white ${STAGE_STRIPE[item.stage]} ${
+        picked ? "ring-2 ring-gray-900" : ""
+      }`}
+    >
+      <input
+        type="checkbox"
+        checked={picked}
+        onChange={() => onPick(item.id)}
+        aria-label={`Pilih ${item.code}`}
+        className="absolute left-3 top-3 h-4 w-4 cursor-pointer"
+      />
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -97,7 +118,7 @@ function ContentCard({ item }: { item: ContentItem }) {
         className="block w-full p-3 text-left text-sm"
       >
         <div className="flex items-start justify-between gap-2">
-          <span className="font-mono text-xs text-gray-500">{item.code}</span>
+          <span className="pl-6 font-mono text-xs text-gray-500">{item.code}</span>
           <Badge tone={STATUS_TONE[item.status] ?? "gray"}>{item.status.replace("_", " ")}</Badge>
         </div>
         <p className="mt-1 font-medium">{item.title_final ?? item.title}</p>
@@ -139,7 +160,17 @@ function ContentCard({ item }: { item: ContentItem }) {
   );
 }
 
-function KanbanBoard({ items }: { items: ContentItem[] }) {
+function KanbanBoard({
+  items,
+  picked,
+  onPick,
+  onPickMany,
+}: {
+  items: ContentItem[];
+  picked: Set<string>;
+  onPick: (id: string) => void;
+  onPickMany: (ids: string[]) => void;
+}) {
   const [showArchived, setShowArchived] = useState(false);
   const columns = STAGES.filter((s) => s.stage !== "archived" || showArchived);
   const archivedCount = items.filter((i) => i.stage === "archived").length;
@@ -157,7 +188,18 @@ function KanbanBoard({ items }: { items: ContentItem[] }) {
           return (
             <section key={stage} className="w-72 shrink-0 snap-start md:w-auto">
               <h2 className="mb-2 flex items-center justify-between text-xs font-medium uppercase text-gray-500">
-                {label}
+                <label className="flex items-center gap-2">
+                  {rows.length > 0 && (
+                    <input
+                      type="checkbox"
+                      aria-label={`Pilih semua ${label}`}
+                      checked={rows.every((r) => picked.has(r.id))}
+                      onChange={() => onPickMany(rows.map((r) => r.id))}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                  )}
+                  {label}
+                </label>
                 <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700">{rows.length}</span>
               </h2>
               {rows.length === 0 ? (
@@ -167,7 +209,7 @@ function KanbanBoard({ items }: { items: ContentItem[] }) {
               ) : (
                 <ul className="space-y-2">
                   {rows.map((item) => (
-                    <ContentCard key={item.id} item={item} />
+                    <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
                   ))}
                 </ul>
               )}
@@ -186,7 +228,15 @@ function KanbanBoard({ items }: { items: ContentItem[] }) {
   );
 }
 
-function CalendarView({ items }: { items: ContentItem[] }) {
+function CalendarView({
+  items,
+  picked,
+  onPick,
+}: {
+  items: ContentItem[];
+  picked: Set<string>;
+  onPick: (id: string) => void;
+}) {
   const dated = useMemo(
     () => items.flatMap((item) => { const date = itemDate(item); return date ? [{ item, date }] : []; }),
     [items],
@@ -281,7 +331,7 @@ function CalendarView({ items }: { items: ContentItem[] }) {
           ) : (
             <ul className="space-y-2">
               {selectedItems.map((item) => (
-                <ContentCard key={item.id} item={item} />
+                <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
               ))}
             </ul>
           )}
@@ -297,7 +347,7 @@ function CalendarView({ items }: { items: ContentItem[] }) {
         ) : (
           <ul className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {undated.map((item) => (
-              <ContentCard key={item.id} item={item} />
+              <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
             ))}
           </ul>
         )}
@@ -314,6 +364,7 @@ export default function ContentView() {
   const [channelFilter, setChannelFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -358,10 +409,30 @@ export default function ContentView() {
     );
   }, [items, channelFilter, statusFilter, search]);
 
+  const togglePick = (id: string) =>
+    setPicked((current) => {
+      const next = new Set(current);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+
+  // Kalau semua sudah terpilih, klik lagi melepas semuanya; selain itu pilih semua.
+  const togglePickMany = (ids: string[]) =>
+    setPicked((current) => {
+      const next = new Set(current);
+      const allPicked = ids.every((id) => next.has(id));
+      ids.forEach((id) => (allPicked ? next.delete(id) : next.add(id)));
+      return next;
+    });
+
+  // Yang dihitung cuma item yang masih tampil di filter aktif, supaya prompt
+  // tidak memuat konten yang tersembunyi.
+  const pickedItems = useMemo(() => filtered.filter((i) => picked.has(i.id)), [filtered, picked]);
+
   const count = (stage: ContentStage) => items.filter((i) => i.stage === stage).length;
 
   return (
-    <main className="mx-auto max-w-6xl p-4 md:p-8">
+    <main className={`mx-auto max-w-6xl p-4 md:p-8 ${pickedItems.length > 0 ? "pb-44" : ""}`}>
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Content Pipeline</h1>
         <p className="text-sm text-gray-500">
@@ -408,12 +479,22 @@ export default function ContentView() {
               No content found.
             </p>
           ) : view === "kanban" ? (
-            <KanbanBoard items={filtered} />
+            <KanbanBoard
+              items={filtered}
+              picked={picked}
+              onPick={togglePick}
+              onPickMany={togglePickMany}
+            />
           ) : (
-            <CalendarView items={filtered} />
+            <CalendarView items={filtered} picked={picked} onPick={togglePick} />
           )}
         </>
       )}
+      <BulkActionBar
+        count={pickedItems.length}
+        actions={contentBulkActions(pickedItems)}
+        onClear={() => setPicked(new Set())}
+      />
     </main>
   );
 }

@@ -88,6 +88,12 @@ Editable via GitHub web dari HP.
 
 ## ✅ Done
 
+### Oct 2, 2026 — Pilih banyak konten + aksi batch di /content
+- Checkbox di tiap card (Kanban + Kalender) dan checkbox pilih-semua di header kolom Kanban
+- Bar melayang dengan aksi batch: Review, Tindak lanjuti notes, Develop jadi draft, Tarik performa. Satu prompt gabungan, item yang tidak cocok dilewati (jumlah yang berlaku tampil di tombol). Aksi tulis tetap 2-step
+- Yang dihitung cuma item yang tampil di filter aktif
+- Prompt batch di src/lib/bulk-prompts.ts
+
 ### Oct 2, 2026 — Sidebar bisa disembunyikan
 - Tombol sembunyikan di header sidebar, tombol kecil di pojok kiri atas buat membuka lagi (desktop + tablet, md ke atas). Pilihan disimpan di localStorage
 - Komponen AppShell memegang state sidebar dan menggeser konten

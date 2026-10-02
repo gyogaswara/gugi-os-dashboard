@@ -27,7 +27,8 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 /** Salin prompt + toast "tersalin". Dipakai bareng oleh ActionButtons dan ActionMenu. */
-function useCopyPrompt() {
+/** Posisi toast bisa digeser (mis. di atas bar aksi batch) lewat toastPosition. */
+export function useCopyPrompt(toastPosition = "bottom-20 md:bottom-6") {
   const [toast, setToast] = useState<{ text: string; ok: boolean } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -52,7 +53,7 @@ function useCopyPrompt() {
   const toastEl = toast && (
     <div
       role="status"
-      className={`fixed bottom-20 left-1/2 z-30 -translate-x-1/2 rounded px-4 py-2 text-sm text-white shadow-lg md:bottom-6 ${
+      className={`fixed ${toastPosition} left-1/2 z-40 -translate-x-1/2 rounded px-4 py-2 text-sm text-white shadow-lg ${
         toast.ok ? "bg-gray-900" : "bg-red-700"
       }`}
     >

@@ -14,7 +14,7 @@ export type PromptAction = {
   prompt: string;
 };
 
-const TWO_STEP_RULE =
+export const TWO_STEP_RULE =
   "Rule: this is a 2-step flow. STEP 1: do the work and show me the result, do NOT write anything to Supabase yet. STEP 2: only after I reply \"approve\", apply the change.";
 
 /** Susun prompt: header konteks (field kosong dibuang) + instruksi. */
