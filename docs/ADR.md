@@ -40,3 +40,14 @@
 **Context**: Hobbyist AI tech FOMO — ingin adopt tmux spawn pattern dan ACP protocol untuk inter-agent communication.
 **Decision**: Park ke Sprint 4+ evaluation stage. Current file bridge + cron chain acceptable.
 **Rationale**: Fleet mostly ornamental (1 active dari 14). Advanced protocol solve problem yang belum lo punya. Build observability dulu (Sprint 2-3), biarin data tunjukin bottleneck, baru pilih protocol.
+
+## ADR-008: Sync cron_jobs dari file statis, penghapusan cron tidak ter-propagate
+**Date**: 2026-10-02
+**Status**: Proposed (belum diputuskan Gugi)
+**Context**: Gugi menghapus ACD-001 dan ACD-002 lewat Hermes. Cron hilang dari scheduler Hermes tapi row-nya tetap ada di Supabase setelah sync. Hermes mengonfirmasi sync cron_jobs berupa UPSERT dari cron-data.json (file hardcoded), bukan baca daftar cron live. Sync tidak pernah menghapus, sync_log juga tidak punya hitungan deleted. Akibat sampingan: next_run_at basi, last_reviewed_at kosong, counter sync selalu 0, dan indikator Sync Health hijau hanya berarti skrip sync jalan, bukan data cocok dengan Hermes.
+**Options**:
+1. Soft delete: sync menandai status='deleted' untuk cron yang tidak ada di Hermes. Riwayat aman, bisa di-recover. Butuh logika compare daftar Hermes vs Supabase.
+2. Sync live: baca daftar cron langsung dari Hermes (cronjob list), bukan JSON. Selalu akurat, tapi butuh auth untuk cron agent.
+3. Hard delete otomatis: bersih tapi riwayat hilang, agent_executions jadi orphan, dan berisiko menghapus massal kalau list gagal atau kosong.
+**Proposed decision**: Sync live dulu (sumber data benar), lalu soft delete sebagai mekanisme penghapusan. Hindari hard delete otomatis. Dashboard menyembunyikan status 'deleted'. Penghapusan manual one-off (ACD-001/002) boleh DELETE setelah SELECT dulu dan approve.
+**Rationale**: Soft delete saja tidak cukup kalau sumbernya file statis, karena sync tidak tahu cron mana yang dihapus. Menunggu keputusan Gugi sebelum ubah schema.

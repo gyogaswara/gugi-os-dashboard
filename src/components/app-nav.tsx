@@ -9,6 +9,8 @@ import {
   Inbox,
   LayoutDashboard,
   ListChecks,
+  PanelLeftClose,
+  PanelLeftOpen,
   RefreshCw,
   type LucideIcon,
 } from "lucide-react";
@@ -40,17 +42,44 @@ function isActive(pathname: string, href: string): boolean {
 /**
  * Navigasi global: sidebar kiri di desktop (md+), bottom tab bar di mobile.
  * Item comingSoon cuma tampil di sidebar; di mobile disembunyikan karena
- * tab bar cuma muat 5 item.
+ * tab bar cuma muat 5 item. Sidebar bisa disembunyikan (md+); saat tertutup
+ * tersisa tombol kecil buat membukanya lagi.
  */
-export default function AppNav() {
+export default function AppNav({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   const pathname = usePathname();
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-52 flex-col border-r border-gray-200 bg-white md:flex">
-        <div className="px-4 py-5">
-          <p className="text-sm font-semibold">Gugi OS</p>
-          <p className="text-xs text-gray-500">Mission control</p>
+      {!open && (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label="Tampilkan sidebar"
+          title="Tampilkan sidebar"
+          className="fixed left-3 top-3 z-20 hidden rounded border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50 md:block"
+        >
+          <PanelLeftOpen size={18} aria-hidden />
+        </button>
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-20 hidden w-52 flex-col border-r border-gray-200 bg-white ${
+          open ? "md:flex" : ""
+        }`}
+      >
+        <div className="flex items-start justify-between px-4 py-5">
+          <div>
+            <p className="text-sm font-semibold">Gugi OS</p>
+            <p className="text-xs text-gray-500">Mission control</p>
+          </div>
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Sembunyikan sidebar"
+            title="Sembunyikan sidebar"
+            className="rounded p-1 text-gray-500 hover:bg-gray-100"
+          >
+            <PanelLeftClose size={18} aria-hidden />
+          </button>
         </div>
         <nav aria-label="Main" className="flex-1 space-y-1 px-2">
           {NAV.map(({ href, label, icon: Icon, comingSoon }) =>

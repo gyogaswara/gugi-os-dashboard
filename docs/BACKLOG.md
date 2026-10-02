@@ -20,6 +20,13 @@ Editable via GitHub web dari HP.
   - [ ] Push notif ke Telegram tiap ada approval baru
 
 ### Infrastructure Fixes (Gugi side)
+- [ ] Hermes: sync cron_jobs baca daftar cron dari Hermes langsung, bukan cron-data.json (file statis hardcoded, tidak ikut ter-update). Kendala dari Hermes: tool cronjob list butuh auth dari cron agent. Lihat ADR-008
+- [ ] Soft delete cron: status 'deleted' di cron_jobs, sync menandai cron yang tidak ada lagi di Hermes (bukan hard delete otomatis), dashboard menyembunyikan status 'deleted'. Menunggu keputusan Gugi (perubahan schema)
+- [ ] Audit timezone: scheduler Hermes jalan di UTC tapi schedule_human ditulis seolah WIB (contoh: "0 1 * * 1,3,5" tertulis 01:00 WIB, aslinya 08:00 WIB; ESG-001 tertulis 00:00 WIB, last_run 00:01 UTC). Cek ke-24 cron, perbaiki label, putuskan tampilan di dashboard (konversi dari schedule_cron ke WIB?)
+- [ ] Verifikasi counter sync_log: 3 sync manual 2 Okt semuanya inserted/updated/skipped = 0 (kemungkinan filenya tidak berubah, atau penghitung belum akurat)
+- [ ] Aksi dashboard "Hapus cron" (prompt 2-step: hapus di scheduler Hermes + Supabase sekaligus). Tunggu mekanisme sync/soft delete diputuskan
+- [ ] Hapus ACD-001 + ACD-002 dari cron-data.json supaya tidak ke-upsert ulang oleh sync berikutnya (row Supabase sudah terhapus 2 Okt)
+- [ ] Hermes: agent_executions untuk delivery gagal harus status 'error' (prompt: docs/prompts/hermes-patch-status-error.md)
 - [ ] Hermes: refresh cron_jobs.next_run_at tiap cron jalan (12 active cron punya next_run_at lewat, Brief jadi cuma nampilin yang masih future)
 - [ ] Hermes: isi cron_jobs.last_reviewed_at saat governance review (sekarang kosong di 26 cron, jadi semua kena "Review governance")
 - [ ] Investigasi LVN-004 Signal Hunter (last run failed 13 hari lalu)
@@ -39,7 +46,7 @@ Editable via GitHub web dari HP.
 
 ### Feature Ideas
 - Pindahkan template prompt ke tabel prompt_templates kalau sudah stabil (editable dari HP)
-- Sidebar desktop bisa dilipat jadi mode ikon
+- Sidebar mode ikon (collapse sebagian) sebagai alternatif hide penuh
 - Mobile responsive polish untuk /cron page (mostly OK tapi bisa lebih baik)
 - Filter/search di /cron (by category, by status, by agent)
 - Group cron jobs by category dengan collapsible sections
@@ -80,6 +87,10 @@ Editable via GitHub web dari HP.
 - API buat external system query cron status Gugi
 
 ## ✅ Done
+
+### Oct 2, 2026 — Sidebar bisa disembunyikan
+- Tombol sembunyikan di header sidebar, tombol kecil di pojok kiri atas buat membuka lagi (desktop + tablet, md ke atas). Pilihan disimpan di localStorage
+- Komponen AppShell memegang state sidebar dan menggeser konten
 
 ### Oct 2, 2026 — Tombol prompt di semua cron
 - Tiap cron punya menu "Prompt" (desktop) / tombol langsung (mobile): "Cek status" (read-only), "Jalankan sekarang" (2-step, konfirmasi dulu karena run manual bisa kirim pesan sungguhan), plus "Investigasi gagal" dan "Review governance" sesuai kondisi
