@@ -85,6 +85,45 @@ Editable via GitHub web dari HP.
 - Naming consistency policy Supabase: "Allow public read" vs 
   "Allow public read access to cron_jobs" — standardize
 
+## Sprint 2 - COMPLETE (2026-10-02)
+
+### Backend
+- ✅ Tabel content_pipeline (23 kolom, 16 rows)
+- ✅ Supabase Management API setup (Hermes autonomous DDL)
+- ✅ Tabel agents (14 agents: 1 active, 8 idle, 5 deprecated)
+- ✅ Tabel agent_executions (28 executions: 25 ok, 3 unknown)
+
+### UI pending
+- [ ] /content page (Kanban + Kalender, Preset C style)
+- [ ] /agents page (list with status filter, workload view)
+- [ ] /tasks page (timeline + grouping by agent)
+- [ ] Landing page navigation update
+
+## Sprint 3 Scope (Orchestration Governance)
+- [ ] Hermes design unified task_id system
+- [ ] Hermes design chat execution tracking
+- [ ] Hermes design structured output rule (populate input/output_summary, completed_at, duration)
+- [ ] Approval workflow bidirectional (dashboard ↔ Hermes)
+- [ ] Chat trigger integration ke agent_executions
+
+## Backlog (Future - Sprint 4+)
+- Research: Inter-agent communication upgrade (tmux spawn pattern, ACP, event bus). Prerequisite: Sprint 3 done, min 3 agents active. Trigger: dashboard data nunjukin bottleneck.
+- Multi-agent activation (writer, producer, scoper, liaison, postman, finance, levi)
+- Auto-post LinkedIn (Maton API) + IG (Composio)
+- Approval queue bidirectional
+- Delete 5 skeleton agents di Hermes side (optional cleanup)
+
+## Infrastructure Fixes (Gugi side)
+- [ ] Fix Telegram thread 11681 (INBOX cron)
+- [ ] Fix Telegram thread 11345 (CNT-PUB cron)
+- [ ] Define SOUL agent-finance
+- [ ] Define SOUL agent-levi
+- [ ] Configure model agent-writer
+- [ ] Configure model agent-producer
+
+## Security Reminders
+- Rotate Supabase Management token: ~24 Dec 2026 (85 days from Oct 2)
+
 ## 📝 How to Use This File
 
 - **Idea baru**? Tulis di "Ideas" section. Gak perlu detail, cukup 
