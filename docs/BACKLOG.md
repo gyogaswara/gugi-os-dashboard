@@ -93,6 +93,14 @@ Editable via GitHub web dari HP.
 
 ## ✅ Done
 
+### Oct 4, 2026 — Halaman Framework (architecture command center)
+- /framework: overview, peta framework (5 layer + PARA, klik layer = modal), tree PARA di mobile, roadmap (fase + milestone + Next up), roster bot, peta halaman dashboard, decision log D1–D9, prinsip panduan
+- /framework/modul/[slug]: anatomi 5 layer, sub-modul, task, bot assignment, dependencies, status history, related docs (6 modul, static)
+- /framework/graph: placeholder dependency graph (Phase 4)
+- Data statis di content/framework/ (meta.yaml, bots.yaml, moduls/*.md), dibaca saat build; dependency baru: yaml
+- Sidebar: Framework (desktop); mobile lewat link di Brief. Menu lain tidak diubah
+- Roadmap framework sekarang tinggal di content/framework/meta.yaml (update status milestone di sana)
+
 ### Oct 3, 2026 — Tombol prompt "copy to Grok"
 - Konten Grok dapat tombol prompt per kondisi: Jawab pertanyaan (Waiting Answer), Revisi draft + Approve (Pending Approval), Kembangkan jadi draft / Ganti angle (Idea), Review draft (Drafting), Jadwalkan di Buffer (Ready), Ubah jadwal (Scheduled), Tarik engagement (Published). Topik: Riset lebih dalam, Jadikan konten
 - Semua card (Hermes dan Grok) punya Copy reference: blok konteks tanpa instruksi buat ditempel di chat mana pun

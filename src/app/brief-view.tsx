@@ -144,7 +144,15 @@ export default function BriefView() {
           <h1 className="text-2xl font-semibold">{brief ? `${greeting}, Gugi` : "Today's Brief"}</h1>
           <p className="text-sm text-gray-500">{brief ? date : "Loading…"}</p>
         </div>
-        <SyncHealthIndicator />
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/framework"
+            className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-900 hover:bg-violet-100"
+          >
+            Framework →
+          </Link>
+          <SyncHealthIndicator />
+        </div>
       </header>
 
       {error ? (

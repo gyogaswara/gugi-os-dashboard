@@ -7,6 +7,7 @@ import {
   Clock,
   FileText,
   Inbox,
+  Layers,
   Lightbulb,
   LayoutDashboard,
   ListChecks,
@@ -29,6 +30,8 @@ type NavEntry = {
 
 const NAV: NavEntry[] = [
   { href: "/", label: "Brief", icon: LayoutDashboard },
+  // Architecture: pintu navigasi ke struktur Gugi OS (di mobile lewat link di Brief).
+  { href: "/framework", label: "Framework", icon: Layers, desktopOnly: true },
   { href: "/content", label: "Content", icon: FileText },
   { href: "/content-stream", label: "Stream", icon: Radio },
   { href: "/topics", label: "Topics", icon: Lightbulb, desktopOnly: true },

@@ -14,7 +14,8 @@
     "lucide-react": "^1.49.0",
     "next": "15.5.26",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
