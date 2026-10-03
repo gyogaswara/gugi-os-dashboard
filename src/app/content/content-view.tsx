@@ -19,7 +19,7 @@ import type { ContentItem, ContentTopic } from "@/lib/types";
 import ActionButtons from "@/components/action-buttons";
 import BulkActionBar from "@/components/bulk-action-bar";
 import { contentBulkActions } from "@/lib/bulk-prompts";
-import { contentActions } from "@/lib/prompts";
+import { grokBulkActions } from "@/lib/grok-prompts";
 import {
   Badge,
   ErrorState,
@@ -35,6 +35,7 @@ import {
   ContentDetail,
   STATUS_TONE,
   TopicCard,
+  actionsFor,
   channelLabel,
   columnOf,
   itemDate,
@@ -89,7 +90,7 @@ function KanbanBoard({
         {columns.map(({ id, label }) => {
           const isTopics = id === "topics";
           const rows = isTopics ? [] : items.filter((i) => columnOf(i) === id);
-          const selectable = rows.filter((r) => producerOf(r) === "hermes");
+          const selectable = rows;
           const count = isTopics ? topics.length : rows.length;
           return (
             <section key={id} className="w-72 shrink-0 snap-start">
@@ -297,9 +298,8 @@ function ListView({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {items.map((item) => {
-              const isHermes = producerOf(item) === "hermes";
               const date = itemDate(item);
-              const actions = isHermes ? contentActions(item) : [];
+              const actions = actionsFor(item);
               return (
                 <Fragment key={item.id}>
                   <tr
@@ -308,15 +308,13 @@ function ListView({
                     className={`cursor-pointer hover:bg-gray-50 ${picked.has(item.id) ? "bg-gray-50" : ""}`}
                   >
                     <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
-                      {isHermes && (
-                        <input
-                          type="checkbox"
-                          checked={picked.has(item.id)}
-                          onChange={() => onPick(item.id)}
-                          aria-label={`Pilih ${item.code}`}
-                          className="h-4 w-4 cursor-pointer"
-                        />
-                      )}
+                      <input
+                        type="checkbox"
+                        checked={picked.has(item.id)}
+                        onChange={() => onPick(item.id)}
+                        aria-label={`Pilih ${item.code}`}
+                        className="h-4 w-4 cursor-pointer"
+                      />
                     </td>
                     <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">{item.code}</td>
                     <td className="px-3 py-2">{item.title_final ?? item.title}</td>
@@ -463,11 +461,22 @@ export default function ContentView() {
     });
 
   // Yang dihitung cuma item yang masih tampil di filter aktif, supaya prompt tidak
-  // memuat konten yang tersembunyi. Aksi batch menyapa Hermes, jadi cuma konten Hermes.
-  const pickedItems = useMemo(
-    () => filtered.filter((i) => picked.has(i.id) && producerOf(i) === "hermes"),
-    [filtered, picked],
-  );
+  // memuat konten yang tersembunyi.
+  const pickedItems = useMemo(() => filtered.filter((i) => picked.has(i.id)), [filtered, picked]);
+
+  // Aksi batch dipisah per produsen: prompt Hermes buat konten Hermes, prompt Grok buat
+  // konten Grok. Kalau pilihan campur, label diberi awalan supaya tidak ketuker.
+  const bulkActions = useMemo(() => {
+    const hermes = pickedItems.filter((i) => producerOf(i) === "hermes");
+    const grok = pickedItems.filter((i) => producerOf(i) === "grok");
+    const mixed = hermes.length > 0 && grok.length > 0;
+    const tag = (prefix: string, list: ReturnType<typeof contentBulkActions>) =>
+      mixed ? list.map((a) => ({ ...a, label: `${prefix}: ${a.label}` })) : list;
+    return [
+      ...(hermes.length ? tag("Hermes", contentBulkActions(hermes)) : []),
+      ...(grok.length ? tag("Grok", grokBulkActions(grok)) : []),
+    ];
+  }, [pickedItems]);
 
   const inColumn = (id: ColumnId) => items.filter((i) => columnOf(i) === id).length;
   const needsYou = inColumn("waiting") + inColumn("approval");
@@ -543,7 +552,7 @@ export default function ContentView() {
 
       <BulkActionBar
         count={pickedItems.length}
-        actions={contentBulkActions(pickedItems)}
+        actions={bulkActions}
         onClear={() => setPicked(new Set())}
       />
     </main>

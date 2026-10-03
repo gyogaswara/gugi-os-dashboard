@@ -5,6 +5,7 @@ import { format, formatDistanceToNow, parseISO } from "date-fns";
 import type { ContentItem, ContentTopic } from "@/lib/types";
 import ActionButtons from "@/components/action-buttons";
 import { contentActions } from "@/lib/prompts";
+import { contentReference, grokContentActions, grokTopicActions } from "@/lib/grok-prompts";
 import { Badge, type BadgeTone, truncate } from "@/components/dashboard-ui";
 
 export type ColumnId =
@@ -159,10 +160,23 @@ export function ContentDetail({ item }: { item: ContentItem }) {
   );
 }
 
+/** Aksi satu konten: prompt Hermes buat konten Hermes, prompt Grok buat konten Grok. */
+export function actionsFor(item: ContentItem) {
+  return producerOf(item) === "grok"
+    ? grokContentActions(item)
+    : [
+        ...contentActions(item),
+        {
+          id: "reference",
+          label: "Copy reference",
+          prompt: `Ini konten yang gue maksud:\n\n${contentReference(item)}\n\n`,
+        },
+      ];
+}
+
 /**
  * Card dengan stripe warna kiri per kolom (Preset C); klik untuk expand inline.
- * Prompt Hermes + checkbox pilih-banyak cuma buat konten Hermes (Hermes diparkir
- * untuk workflow Grok).
+ * Tombol prompt menyesuaikan produsen: Hermes atau Grok.
  */
 export function ContentCard({
   item,
@@ -175,8 +189,7 @@ export function ContentCard({
 }) {
   const [open, setOpen] = useState(false);
   const column = columnOf(item);
-  const isHermes = producerOf(item) === "hermes";
-  const actions = isHermes ? contentActions(item) : [];
+  const actions = actionsFor(item);
 
   return (
     <li
@@ -184,15 +197,13 @@ export function ContentCard({
         picked ? "ring-2 ring-gray-900" : ""
       }`}
     >
-      {isHermes && (
-        <input
-          type="checkbox"
-          checked={picked}
-          onChange={() => onPick(item.id)}
-          aria-label={`Pilih ${item.code}`}
-          className="absolute left-3 top-3 h-4 w-4 cursor-pointer"
-        />
-      )}
+      <input
+        type="checkbox"
+        checked={picked}
+        onChange={() => onPick(item.id)}
+        aria-label={`Pilih ${item.code}`}
+        className="absolute left-3 top-3 h-4 w-4 cursor-pointer"
+      />
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -200,7 +211,7 @@ export function ContentCard({
         className="block w-full p-3 text-left text-sm"
       >
         <div className="flex items-start justify-between gap-2">
-          <span className={`font-mono text-xs text-gray-500 ${isHermes ? "pl-6" : ""}`}>{item.code}</span>
+          <span className="pl-6 font-mono text-xs text-gray-500">{item.code}</span>
           <Badge tone={STATUS_TONE[item.status] ?? "gray"}>{statusLabel(item.status)}</Badge>
         </div>
         <p className="mt-1 font-medium">{item.title_final ?? item.title}</p>
@@ -262,6 +273,7 @@ export function sourceLines(sources: unknown): { label: string; href: string | n
 export function TopicCard({ topic, usedIn }: { topic: ContentTopic; usedIn?: string }) {
   const [open, setOpen] = useState(false);
   const sources = sourceLines(topic.sources);
+  const actions = grokTopicActions(topic);
   return (
     <li className="rounded border border-l-4 border-gray-200 border-l-cyan-400 bg-white">
       <button
@@ -284,6 +296,9 @@ export function TopicCard({ topic, usedIn }: { topic: ContentTopic; usedIn?: str
         </p>
         {!open && topic.description && <p className="mt-1 text-xs text-gray-600">{truncate(topic.description, 90)}</p>}
       </button>
+      <div className="px-3 pb-3">
+        <ActionButtons actions={actions} />
+      </div>
       {open && (
         <div className="space-y-3 border-t border-gray-200 p-3 text-xs">
           {topic.description && <p className="whitespace-pre-wrap text-gray-700">{topic.description}</p>}

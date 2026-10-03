@@ -93,6 +93,13 @@ Editable via GitHub web dari HP.
 
 ## ✅ Done
 
+### Oct 3, 2026 — Tombol prompt "copy to Grok"
+- Konten Grok dapat tombol prompt per kondisi: Jawab pertanyaan (Waiting Answer), Revisi draft + Approve (Pending Approval), Kembangkan jadi draft / Ganti angle (Idea), Review draft (Drafting), Jadwalkan di Buffer (Ready), Ubah jadwal (Scheduled), Tarik engagement (Published). Topik: Riset lebih dalam, Jadikan konten
+- Semua card (Hermes dan Grok) punya Copy reference: blok konteks tanpa instruksi buat ditempel di chat mana pun
+- Sapaan "Bro" (satu chat, tanpa nama bot), pengenal = code di Supabase (teks topik buat topik), Grok yang menulis balik ke Supabase. Aksi tulis tetap 2-step
+- Checkbox + aksi batch sekarang buat semua konten; pilihan campur Hermes + Grok diberi awalan label
+- Prompt di src/lib/grok-prompts.ts
+
 ### Oct 3, 2026 — Integrasi Grok (content workflow)
 - Migration 005 (applied ke production via Supabase): tabel content_topics + grok_activity_log, 8 kolom Grok di content_pipeline (producer_system default hermes, buffer_*, engagement_metrics, pending_question, user_answer, dll), RLS + SELECT anon saja. CHECK status content_pipeline dilebarkan dengan waiting_user_answer + pending_approval (nilai lama tetap valid)
 - /content-stream: feed aktivitas Grok (Needs your action + timeline per hari, filter actor/status/range, expand payload)
