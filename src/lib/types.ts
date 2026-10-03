@@ -180,7 +180,15 @@ export interface ContentItem {
   body_full: string | null;
   media_urls: string[] | null;
   stage: ContentStage;
-  status: "new" | "in_progress" | "done" | string;
+  status:
+    | "new"
+    | "approved"
+    | "rejected"
+    | "hold"
+    | "in_progress"
+    | "done"
+    | "waiting_user_answer"
+    | "pending_approval";
   channel: string;
   angle: string | null;
   content_type: string;
@@ -195,6 +203,19 @@ export interface ContentItem {
   reviewer_notes: string | null;
   performance_summary: string | null;
   tags: string[] | null;
+
+  // --- Kolom Grok (migration 005). Row Hermes: producer_system = 'hermes', sisanya null. ---
+  /** Sistem yang memproduksi konten: 'hermes' (default) atau 'grok'. */
+  producer_system: string | null;
+  /** Topik di content_topics yang jadi sumber konten ini. */
+  source_topic_id: string | null;
+  buffer_post_id: string | null;
+  buffer_scheduled_at: string | null;
+  engagement_metrics: Record<string, unknown> | null;
+  /** Pertanyaan Grok yang menunggu jawaban Gugi (status = waiting_user_answer). */
+  pending_question: string | null;
+  user_answer: string | null;
+  user_answered_at: string | null;
 }
 
 /** Satu row di tabel `sync_log`: heartbeat sync Hermes → Supabase. */
@@ -214,4 +235,55 @@ export interface SyncLog {
   error_message: string | null;
   duration_seconds: number | null;
   metadata: Record<string, unknown> | null;
+}
+
+/** Status topik di topic bank. */
+export type ContentTopicStatus = "fresh" | "picked" | "used" | "archived";
+
+/** Satu row di tabel `content_topics`: topic bank hasil riset Sandi/Grok. */
+export interface ContentTopic {
+  id: string;
+  topic: string;
+  description: string | null;
+  category: string | null;
+  /** Daftar sumber riset (bentuk bebas, biasanya array of {title,url}). */
+  sources: unknown;
+  researched_by: string | null;
+  researched_at: string | null;
+  status: ContentTopicStatus;
+  picked_at: string | null;
+  /** Konten di content_pipeline yang memakai topik ini. */
+  used_in_content_id: string | null;
+  relevance_score: number | null;
+  tags: string[] | null;
+  metadata: Record<string, unknown> | null;
+}
+
+/** Aktor di workflow Grok. */
+export type GrokActor = "sandi" | "warta" | "rupa" | "user" | "chief_of_staff";
+
+/** Status aktivitas Grok. */
+export type GrokActivityStatus =
+  | "completed"
+  | "in_progress"
+  | "pending_approval"
+  | "failed"
+  | "skipped";
+
+/** Satu row di tabel `grok_activity_log`: audit trail aktivitas Grok bot. */
+export interface GrokActivityLog {
+  id: string;
+  actor: GrokActor;
+  action: string;
+  subject: string | null;
+  channel: string | null;
+  status: GrokActivityStatus;
+  content_pipeline_id: string | null;
+  payload: Record<string, unknown> | null;
+  requires_user_action: boolean;
+  /** Deeplink ke Grok chat buat menindaklanjuti. */
+  user_action_url: string | null;
+  user_response: string | null;
+  user_responded_at: string | null;
+  created_at: string;
 }
