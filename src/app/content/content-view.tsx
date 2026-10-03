@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -9,208 +10,113 @@ import {
   format,
   isSameDay,
   isSameMonth,
-  parseISO,
   startOfMonth,
   startOfWeek,
   subMonths,
 } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import type { ContentItem, ContentTopic } from "@/lib/types";
 import ActionButtons from "@/components/action-buttons";
 import BulkActionBar from "@/components/bulk-action-bar";
 import { contentBulkActions } from "@/lib/bulk-prompts";
 import { contentActions } from "@/lib/prompts";
-import type { ContentItem, ContentStage } from "@/lib/types";
 import {
   Badge,
-  type BadgeTone,
   ErrorState,
   FilterButtons,
   SearchInput,
   SkeletonRows,
   SummaryCard,
-  truncate,
 } from "@/components/dashboard-ui";
+import {
+  COLUMNS,
+  COLUMN_LABEL,
+  ContentCard,
+  ContentDetail,
+  STATUS_TONE,
+  TopicCard,
+  channelLabel,
+  columnOf,
+  itemDate,
+  producerOf,
+  type ColumnId,
+} from "./content-parts";
 
-type ViewMode = "kanban" | "calendar";
-type StatusFilter = "all" | "new" | "in_progress" | "done";
+type ViewMode = "kanban" | "calendar" | "list";
+type ProducerFilter = "all" | "hermes" | "grok";
 
-const STAGES: { stage: ContentStage; label: string; stripe: string }[] = [
-  { stage: "idea", label: "Idea", stripe: "border-l-purple-400" },
-  { stage: "draft", label: "Draft", stripe: "border-l-amber-400" },
-  { stage: "ready", label: "Ready", stripe: "border-l-blue-400" },
-  { stage: "scheduled", label: "Scheduled", stripe: "border-l-indigo-500" },
-  { stage: "published", label: "Published", stripe: "border-l-green-500" },
-  { stage: "archived", label: "Archived", stripe: "border-l-gray-300" },
-];
-
-const STAGE_STRIPE = Object.fromEntries(STAGES.map((s) => [s.stage, s.stripe])) as Record<
-  ContentStage,
-  string
->;
-
-const STATUS_TONE: Record<string, BadgeTone> = { new: "purple", in_progress: "amber", done: "green" };
-
-const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "new", label: "New" },
-  { value: "in_progress", label: "In progress" },
-  { value: "done", label: "Done" },
-];
+const STRIPE = Object.fromEntries(COLUMNS.map((c) => [c.id, c.stripe])) as Record<ColumnId, string>;
 
 const VIEW_OPTIONS: { value: ViewMode; label: string }[] = [
   { value: "kanban", label: "Kanban" },
   { value: "calendar", label: "Kalender" },
+  { value: "list", label: "List" },
+];
+
+const PRODUCER_OPTIONS: { value: ProducerFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "hermes", label: "Hermes" },
+  { value: "grok", label: "Grok" },
 ];
 
 const WEEKDAYS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
-function channelLabel(channel: string): string {
-  return channel.replace(/_/g, " ");
-}
-
-/** Tanggal kalender: scheduled_at, fallback ke published_at. */
-function itemDate(item: ContentItem): Date | null {
-  const value = item.scheduled_at ?? item.published_at;
-  return value ? parseISO(value) : null;
-}
-
-/** Card dengan stripe warna kiri per stage (Preset C); klik untuk expand inline. */
-function ContentCard({
-  item,
-  picked,
-  onPick,
-}: {
-  item: ContentItem;
-  picked: boolean;
-  onPick: (id: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const details: [string, string | null][] = [
-    ["Angle", item.angle],
-    ["Type", item.content_type],
-    ["Source", [item.source_agent, item.source_cron_code].filter(Boolean).join(" · ") || null],
-    ["Source file", item.source_file_path],
-    ["Reviewer notes", item.reviewer_notes],
-    ["Performance", item.performance_summary],
-    ["Scheduled", item.scheduled_at ? format(parseISO(item.scheduled_at), "d MMM yyyy HH:mm") : null],
-    ["Published", item.published_at ? format(parseISO(item.published_at), "d MMM yyyy HH:mm") : null],
-  ];
-
-  const actions = contentActions(item);
-
-  return (
-    <li
-      className={`relative rounded border border-l-4 border-gray-200 bg-white ${STAGE_STRIPE[item.stage]} ${
-        picked ? "ring-2 ring-gray-900" : ""
-      }`}
-    >
-      <input
-        type="checkbox"
-        checked={picked}
-        onChange={() => onPick(item.id)}
-        aria-label={`Pilih ${item.code}`}
-        className="absolute left-3 top-3 h-4 w-4 cursor-pointer"
-      />
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="block w-full p-3 text-left text-sm"
-      >
-        <div className="flex items-start justify-between gap-2">
-          <span className="pl-6 font-mono text-xs text-gray-500">{item.code}</span>
-          <Badge tone={STATUS_TONE[item.status] ?? "gray"}>{item.status.replace("_", " ")}</Badge>
-        </div>
-        <p className="mt-1 font-medium">{item.title_final ?? item.title}</p>
-        <p className="mt-1 text-xs text-gray-500">
-          {channelLabel(item.channel)} · {item.content_type}
-        </p>
-        {!open && <p className="mt-1 text-xs text-gray-600">{truncate(item.body_preview, 90)}</p>}
-      </button>
-      {actions.length > 0 && (
-        <div className="px-3 pb-3">
-          <ActionButtons actions={actions} />
-        </div>
-      )}
-      {open && (
-        <div className="border-t border-gray-200 p-3 text-xs">
-          <p className="whitespace-pre-wrap text-gray-700">{item.body_full ?? item.body_preview}</p>
-          <dl className="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
-            {details
-              .filter(([, value]) => value)
-              .map(([label, value]) => (
-                <div key={label} className="contents">
-                  <dt className="text-gray-500">{label}</dt>
-                  <dd className="break-words">{value}</dd>
-                </div>
-              ))}
-          </dl>
-          {item.tags && item.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1">
-              {item.tags.map((tag) => (
-                <Badge key={tag} tone="gray">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </li>
-  );
-}
-
 function KanbanBoard({
   items,
+  topics,
+  showTopics,
   picked,
   onPick,
   onPickMany,
 }: {
   items: ContentItem[];
+  topics: ContentTopic[];
+  showTopics: boolean;
   picked: Set<string>;
   onPick: (id: string) => void;
   onPickMany: (ids: string[]) => void;
 }) {
   const [showArchived, setShowArchived] = useState(false);
-  const columns = STAGES.filter((s) => s.stage !== "archived" || showArchived);
-  const archivedCount = items.filter((i) => i.stage === "archived").length;
+  const columns = COLUMNS.filter(
+    (c) => (c.id !== "archived" || showArchived) && (c.id !== "topics" || showTopics),
+  );
+  const archivedCount = items.filter((i) => columnOf(i) === "archived").length;
 
   return (
     <>
-      {/* Mobile: kolom di-scroll horizontal; desktop: grid */}
-      <div
-        className={`-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:overflow-visible md:px-0 ${
-          showArchived ? "md:grid-cols-6" : "md:grid-cols-5"
-        }`}
-      >
-        {columns.map(({ stage, label }) => {
-          const rows = items.filter((i) => i.stage === stage);
+      {/* 8 kolom terlalu lebar buat grid: scroll horizontal di semua ukuran */}
+      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
+        {columns.map(({ id, label }) => {
+          const isTopics = id === "topics";
+          const rows = isTopics ? [] : items.filter((i) => columnOf(i) === id);
+          const selectable = rows.filter((r) => producerOf(r) === "hermes");
+          const count = isTopics ? topics.length : rows.length;
           return (
-            <section key={stage} className="w-72 shrink-0 snap-start md:w-auto">
+            <section key={id} className="w-72 shrink-0 snap-start">
               <h2 className="mb-2 flex items-center justify-between text-xs font-medium uppercase text-gray-500">
                 <label className="flex items-center gap-2">
-                  {rows.length > 0 && (
+                  {selectable.length > 0 && (
                     <input
                       type="checkbox"
                       aria-label={`Pilih semua ${label}`}
-                      checked={rows.every((r) => picked.has(r.id))}
-                      onChange={() => onPickMany(rows.map((r) => r.id))}
+                      checked={selectable.every((r) => picked.has(r.id))}
+                      onChange={() => onPickMany(selectable.map((r) => r.id))}
                       className="h-4 w-4 cursor-pointer"
                     />
                   )}
                   {label}
                 </label>
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700">{rows.length}</span>
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700">{count}</span>
               </h2>
-              {rows.length === 0 ? (
-                <p className="rounded border border-dashed border-gray-200 p-3 text-xs text-gray-400">
-                  Kosong
-                </p>
+              {count === 0 ? (
+                <p className="rounded border border-dashed border-gray-200 p-3 text-xs text-gray-400">Kosong</p>
               ) : (
                 <ul className="space-y-2">
-                  {rows.map((item) => (
-                    <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
-                  ))}
+                  {isTopics
+                    ? topics.map((t) => <TopicCard key={t.id} topic={t} />)
+                    : rows.map((item) => (
+                        <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
+                      ))}
                 </ul>
               )}
             </section>
@@ -238,7 +144,11 @@ function CalendarView({
   onPick: (id: string) => void;
 }) {
   const dated = useMemo(
-    () => items.flatMap((item) => { const date = itemDate(item); return date ? [{ item, date }] : []; }),
+    () =>
+      items.flatMap((item) => {
+        const date = itemDate(item);
+        return date ? [{ item, date }] : [];
+      }),
     [items],
   );
   const undated = useMemo(() => items.filter((item) => !itemDate(item)), [items]);
@@ -309,7 +219,7 @@ function CalendarView({
                 {rows.slice(0, 2).map((r) => (
                   <span
                     key={r.id}
-                    className={`block truncate rounded border-l-4 bg-gray-50 px-1 ${STAGE_STRIPE[r.stage]}`}
+                    className={`block truncate rounded border-l-4 bg-gray-50 px-1 ${STRIPE[columnOf(r)]}`}
                   >
                     {r.title_final ?? r.title}
                   </span>
@@ -356,30 +266,134 @@ function CalendarView({
   );
 }
 
+/** List: tabel di desktop (klik row untuk expand), card di mobile. */
+function ListView({
+  items,
+  picked,
+  onPick,
+}: {
+  items: ContentItem[];
+  picked: Set<string>;
+  onPick: (id: string) => void;
+}) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggle = (id: string) => setExpandedId((current) => (current === id ? null : id));
+
+  return (
+    <>
+      <div className="hidden overflow-x-auto rounded border border-gray-200 bg-white md:block">
+        <table className="min-w-full text-left text-sm">
+          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+              <th className="w-8 px-3 py-2" />
+              <th className="px-3 py-2 font-medium">Code</th>
+              <th className="px-3 py-2 font-medium">Title</th>
+              <th className="px-3 py-2 font-medium">Channel</th>
+              <th className="px-3 py-2 font-medium">Stage</th>
+              <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Via</th>
+              <th className="px-3 py-2 font-medium">Date</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {items.map((item) => {
+              const isHermes = producerOf(item) === "hermes";
+              const date = itemDate(item);
+              const actions = isHermes ? contentActions(item) : [];
+              return (
+                <Fragment key={item.id}>
+                  <tr
+                    onClick={() => toggle(item.id)}
+                    aria-expanded={expandedId === item.id}
+                    className={`cursor-pointer hover:bg-gray-50 ${picked.has(item.id) ? "bg-gray-50" : ""}`}
+                  >
+                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                      {isHermes && (
+                        <input
+                          type="checkbox"
+                          checked={picked.has(item.id)}
+                          onChange={() => onPick(item.id)}
+                          aria-label={`Pilih ${item.code}`}
+                          className="h-4 w-4 cursor-pointer"
+                        />
+                      )}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">{item.code}</td>
+                    <td className="px-3 py-2">{item.title_final ?? item.title}</td>
+                    <td className="px-3 py-2 capitalize">{channelLabel(item.channel)}</td>
+                    <td className="px-3 py-2">{COLUMN_LABEL[columnOf(item)]}</td>
+                    <td className="px-3 py-2">
+                      <Badge tone={STATUS_TONE[item.status] ?? "gray"}>{item.status.replace(/_/g, " ")}</Badge>
+                    </td>
+                    <td className="px-3 py-2 text-xs text-gray-500">{producerOf(item)}</td>
+                    <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
+                      {date ? format(date, "d MMM yyyy") : "—"}
+                    </td>
+                  </tr>
+                  {expandedId === item.id && (
+                    <tr className="bg-gray-50">
+                      <td colSpan={8} className="px-4 py-3">
+                        <ContentDetail item={item} />
+                        {actions.length > 0 && (
+                          <div className="mt-3">
+                            <ActionButtons actions={actions} />
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <ul className="space-y-2 md:hidden">
+        {items.map((item) => (
+          <ContentCard key={item.id} item={item} picked={picked.has(item.id)} onPick={onPick} />
+        ))}
+      </ul>
+    </>
+  );
+}
+
 export default function ContentView() {
   const [items, setItems] = useState<ContentItem[]>([]);
+  const [topics, setTopics] = useState<ContentTopic[]>([]);
+  const [topicsError, setTopicsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<ViewMode>("kanban");
   const [channelFilter, setChannelFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [producerFilter, setProducerFilter] = useState<ProducerFilter>("all");
   const [search, setSearch] = useState("");
   const [picked, setPicked] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase
-      .from("content_pipeline")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .order("code", { ascending: false });
+    const [pipeline, topicRows] = await Promise.all([
+      supabase
+        .from("content_pipeline")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .order("code", { ascending: false }),
+      supabase
+        .from("content_topics")
+        .select("*")
+        .eq("status", "fresh")
+        .order("researched_at", { ascending: false, nullsFirst: false }),
+    ]);
 
-    if (error) {
-      setError(error.message);
+    if (pipeline.error) {
+      setError(pipeline.error.message);
     } else {
-      setItems((data ?? []) as ContentItem[]);
+      setItems((pipeline.data ?? []) as ContentItem[]);
     }
+    // Topics opsional: kalau gagal, pipeline tetap tampil dan kolom Topics kosong.
+    setTopicsError(topicRows.error ? topicRows.error.message : null);
+    setTopics(topicRows.error ? [] : ((topicRows.data ?? []) as ContentTopic[]));
     setLoading(false);
   }, []);
 
@@ -389,25 +403,48 @@ export default function ContentView() {
 
   const channelOptions = useMemo(() => {
     const channels = [...new Set(items.map((i) => i.channel))].sort();
-    return [
-      { value: "all", label: "All" },
-      ...channels.map((c) => ({ value: c, label: channelLabel(c) })),
-    ];
+    return [{ value: "all", label: "All" }, ...channels.map((c) => ({ value: c, label: channelLabel(c) }))];
   }, [items]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return items.filter(
-      (item) =>
-        (channelFilter === "all" || item.channel === channelFilter) &&
-        (statusFilter === "all" || item.status === statusFilter) &&
-        (!q ||
-          item.title.toLowerCase().includes(q) ||
-          (item.title_final ?? "").toLowerCase().includes(q) ||
-          item.code.toLowerCase().includes(q) ||
-          (item.tags ?? []).some((t) => t.toLowerCase().includes(q))),
-    );
-  }, [items, channelFilter, statusFilter, search]);
+  const statusOptions = useMemo(() => {
+    const statuses = [...new Set(items.map((i) => i.status))].sort();
+    return [{ value: "all", label: "All" }, ...statuses.map((st) => ({ value: st, label: st.replace(/_/g, " ") }))];
+  }, [items]);
+
+  const q = search.trim().toLowerCase();
+
+  const filtered = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          (channelFilter === "all" || item.channel === channelFilter) &&
+          (statusFilter === "all" || item.status === statusFilter) &&
+          (producerFilter === "all" || producerOf(item) === producerFilter) &&
+          (!q ||
+            item.title.toLowerCase().includes(q) ||
+            (item.title_final ?? "").toLowerCase().includes(q) ||
+            item.code.toLowerCase().includes(q) ||
+            (item.tags ?? []).some((t) => t.toLowerCase().includes(q))),
+      ),
+    [items, channelFilter, statusFilter, producerFilter, q],
+  );
+
+  // Topics berasal dari Sandi/Grok: disembunyikan kalau filter Hermes, dan tidak
+  // ikut filter channel (topik belum punya channel).
+  const showTopics = producerFilter !== "hermes";
+  const filteredTopics = useMemo(
+    () =>
+      showTopics
+        ? topics.filter(
+            (t) =>
+              !q ||
+              t.topic.toLowerCase().includes(q) ||
+              (t.category ?? "").toLowerCase().includes(q) ||
+              (t.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
+          )
+        : [],
+    [topics, showTopics, q],
+  );
 
   const togglePick = (id: string) =>
     setPicked((current) => {
@@ -425,21 +462,35 @@ export default function ContentView() {
       return next;
     });
 
-  // Yang dihitung cuma item yang masih tampil di filter aktif, supaya prompt
-  // tidak memuat konten yang tersembunyi.
-  const pickedItems = useMemo(() => filtered.filter((i) => picked.has(i.id)), [filtered, picked]);
+  // Yang dihitung cuma item yang masih tampil di filter aktif, supaya prompt tidak
+  // memuat konten yang tersembunyi. Aksi batch menyapa Hermes, jadi cuma konten Hermes.
+  const pickedItems = useMemo(
+    () => filtered.filter((i) => picked.has(i.id) && producerOf(i) === "hermes"),
+    [filtered, picked],
+  );
 
-  const count = (stage: ContentStage) => items.filter((i) => i.stage === stage).length;
+  const inColumn = (id: ColumnId) => items.filter((i) => columnOf(i) === id).length;
+  const needsYou = inColumn("waiting") + inColumn("approval");
 
   return (
     <main className={`mx-auto max-w-6xl p-4 md:p-8 ${pickedItems.length > 0 ? "pb-44" : ""}`}>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Content Pipeline</h1>
-        <p className="text-sm text-gray-500">
-          {loading && items.length === 0
-            ? "Loading…"
-            : `${count("idea")} idea, ${count("draft")} draft, ${count("published")} published`}
-        </p>
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Content Pipeline</h1>
+          <p className="text-sm text-gray-500">
+            {loading && items.length === 0
+              ? "Loading…"
+              : `${topics.length} topics, ${inColumn("ideas")} ideas, ${inColumn("drafting")} drafting, ${inColumn("published")} published`}
+          </p>
+        </div>
+        <div className="flex gap-2 text-xs">
+          <Link href="/content-stream" className="rounded border border-gray-200 bg-white px-3 py-1.5 hover:bg-gray-50">
+            Content Stream
+          </Link>
+          <Link href="/topics" className="rounded border border-gray-200 bg-white px-3 py-1.5 hover:bg-gray-50">
+            Topics
+          </Link>
+        </div>
       </header>
 
       {error ? (
@@ -450,9 +501,9 @@ export default function ContentView() {
         <>
           <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SummaryCard label="Total" value={items.length} />
-            <SummaryCard label="Ideas" value={count("idea")} />
-            <SummaryCard label="In Draft" value={count("draft")} />
-            <SummaryCard label="Published" value={count("published")} />
+            <SummaryCard label="Fresh Topics" value={topics.length} />
+            <SummaryCard label="Needs You" value={needsYou} />
+            <SummaryCard label="Published" value={inColumn("published")} />
           </section>
 
           <section className="mb-4 flex flex-col gap-3">
@@ -460,36 +511,36 @@ export default function ContentView() {
               <FilterButtons label="View" options={VIEW_OPTIONS} value={view} onChange={setView} />
               <SearchInput value={search} onChange={setSearch} placeholder="Search title, code, tag…" />
             </div>
-            <FilterButtons
-              label="Channel"
-              options={channelOptions}
-              value={channelFilter}
-              onChange={setChannelFilter}
-            />
-            <FilterButtons
-              label="Status"
-              options={STATUS_OPTIONS}
-              value={statusFilter}
-              onChange={setStatusFilter}
-            />
+            <FilterButtons label="Channel" options={channelOptions} value={channelFilter} onChange={setChannelFilter} />
+            <FilterButtons label="Status" options={statusOptions} value={statusFilter} onChange={setStatusFilter} />
+            <FilterButtons label="Producer" options={PRODUCER_OPTIONS} value={producerFilter} onChange={setProducerFilter} />
           </section>
 
-          {filtered.length === 0 ? (
-            <p className="rounded border border-gray-200 bg-white p-4 text-sm text-gray-500">
-              No content found.
+          {topicsError && (
+            <p className="mb-3 rounded border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
+              Kolom Topics tidak bisa dimuat ({topicsError}). Pipeline tetap tampil.
             </p>
+          )}
+
+          {filtered.length === 0 && filteredTopics.length === 0 ? (
+            <p className="rounded border border-gray-200 bg-white p-4 text-sm text-gray-500">No content found.</p>
           ) : view === "kanban" ? (
             <KanbanBoard
               items={filtered}
+              topics={filteredTopics}
+              showTopics={showTopics}
               picked={picked}
               onPick={togglePick}
               onPickMany={togglePickMany}
             />
-          ) : (
+          ) : view === "calendar" ? (
             <CalendarView items={filtered} picked={picked} onPick={togglePick} />
+          ) : (
+            <ListView items={filtered} picked={picked} onPick={togglePick} />
           )}
         </>
       )}
+
       <BulkActionBar
         count={pickedItems.length}
         actions={contentBulkActions(pickedItems)}
