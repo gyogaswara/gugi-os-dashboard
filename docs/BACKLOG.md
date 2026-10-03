@@ -44,6 +44,11 @@ Editable via GitHub web dari HP.
 
 ## 💡 Ideas (Belum di-Prioritize)
 
+### Grok integration — keputusan terbuka
+- Mekanisme tulis Grok ke Supabase (anon key read-only; Grok butuh service_role atau Edge Function). Belum didefinisikan
+- grok_activity_log (payload, user_response, user_action_url) sekarang terbaca publik lewat anon key karena dashboard tanpa login. Pertimbangkan Auth/repo private sebelum data sensitif masuk, atau jangan taruh data sensitif di kolom itu
+- Status "Needs your action" dianggap selesai kalau user_responded_at terisi. Konfirmasi ke Gugi apakah itu aturan yang benar
+
 ### Feature Ideas
 - Pindahkan template prompt ke tabel prompt_templates kalau sudah stabil (editable dari HP)
 - Sidebar mode ikon (collapse sebagian) sebagai alternatif hide penuh
@@ -87,6 +92,14 @@ Editable via GitHub web dari HP.
 - API buat external system query cron status Gugi
 
 ## ✅ Done
+
+### Oct 3, 2026 — Integrasi Grok (content workflow)
+- Migration 005 (applied ke production via Supabase): tabel content_topics + grok_activity_log, 8 kolom Grok di content_pipeline (producer_system default hermes, buffer_*, engagement_metrics, pending_question, user_answer, dll), RLS + SELECT anon saja. CHECK status content_pipeline dilebarkan dengan waiting_user_answer + pending_approval (nilai lama tetap valid)
+- /content-stream: feed aktivitas Grok (Needs your action + timeline per hari, filter actor/status/range, expand payload)
+- /content: 8 kolom (Topics, Ideas, Waiting Answer, Drafting, Pending Approval, Ready, Scheduled, Published), view Kanban/Kalender/List, pertanyaan di Waiting Answer, preview draft di Pending Approval, metrik di Published, badge Buffer, badge via Grok/Hermes, filter producer
+- /topics: browse topic bank (filter status + kategori, sources, used in)
+- Nav: Content jadi primary, plus Stream dan Topics. Tombol prompt Hermes + aksi batch cuma buat konten Hermes (Hermes diparkir untuk workflow Grok)
+- Belum diisi data: content_topics dan grok_activity_log masih kosong sampai Grok mulai menulis
 
 ### Oct 2, 2026 — Pilih banyak konten + aksi batch di /content
 - Checkbox di tiap card (Kanban + Kalender) dan checkbox pilih-semua di header kolom Kanban

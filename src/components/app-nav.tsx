@@ -7,8 +7,10 @@ import {
   Clock,
   FileText,
   Inbox,
+  Lightbulb,
   LayoutDashboard,
   ListChecks,
+  Radio,
   PanelLeftClose,
   PanelLeftOpen,
   RefreshCw,
@@ -27,10 +29,12 @@ type NavEntry = {
 
 const NAV: NavEntry[] = [
   { href: "/", label: "Brief", icon: LayoutDashboard },
-  { href: "/cron", label: "Cron Jobs", icon: Clock },
+  { href: "/content", label: "Content", icon: FileText },
+  { href: "/content-stream", label: "Stream", icon: Radio },
+  { href: "/topics", label: "Topics", icon: Lightbulb, desktopOnly: true },
   { href: "/agents", label: "Agents", icon: Bot },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
-  { href: "/content", label: "Content", icon: FileText },
+  { href: "/cron", label: "Cron Jobs", icon: Clock },
   { href: "/sync-log", label: "Sync Log", icon: RefreshCw, desktopOnly: true },
   { href: "/approvals", label: "Approvals", icon: Inbox, comingSoon: true },
 ];
