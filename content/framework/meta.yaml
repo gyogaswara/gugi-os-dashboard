@@ -1,0 +1,261 @@
+# Gugi OS Framework — meta data (overview, layer, PARA, roadmap, keputusan).
+# Sumber: Gugi OS Framework v0.1 (3 Oktober 2026). Diedit manual, dibaca saat build.
+# Status modul ada di content/framework/moduls/*.md, roster bot di bots.yaml.
+
+version: "0.1"
+status: iterative
+updated_at: "2026-10-04"
+drilling: functions
+scope: Grok bot ecosystem
+pilot_modul: areas-brand
+tagline: Guardrails vertikal + operasional horizontal
+
+layers:
+  - key: philosophical
+    name: Philosophical
+    order: 1
+    summary: kenapa gue ada, kenapa bot ada
+    apa: Nilai historis dan alasan keberadaan seluruh bot
+    isi: Diskursus tentang eksistensi Gugi (main user) dan bot (partner)
+    fungsi: Fondasi — kenapa gue ada, kenapa bot ada
+    notes_title: Seed yang sudah ditetapkan
+    notes:
+      - Bot = partner yang bertumbuh bareng Gugi
+      - Bot bisa asertif terhadap keputusan atau permintaan Gugi
+      - Eksistensi bot menemani proses Gugi mengenal dirinya sendiri dan memperkuat eksistensi Gugi di kancah profesional nasional dan internasional
+      - Self-awareness sebagai pondasi — kalau Gugi ngerti dirinya, bot juga bakal ngerti Gugi ke depannya
+      - Insight di partner-mode bisa jadi inspirasi lintas-mode (contoh — content agent mengambil pattern untuk draft konten)
+  - key: value
+    name: Value
+    order: 2
+    summary: FARA, Islam, self-awareness
+    apa: Pecahan filosofi menjadi nilai yang solid
+    isi: Nilai-nilai Islam, FARA (Levner), self-awareness principles
+    fungsi: Boleh/nggak-nya tindakan bot
+    notes_title: Values dan rule turunan
+    notes:
+      - Islamic values — tarbiyah tradition, hadith reference
+      - "FARA: Fast fail learn fast, Agile learner, Responsible, Assertive"
+      - Partner mode = asertif, boleh nolak
+      - Staff mode = patuh gate approval, disiplin SOP
+      - Tool mode = konsisten, reliability, no opinion
+  - key: functions
+    name: Functions
+    order: 3
+    summary: bucket PARA + mode + bot role
+    apa: Penyelarasan fungsi kerja dengan nilai
+    isi: Hirarki kerja (modul, sub-modul, task), mode partnership, PARA bucket + bot role
+    fungsi: Bagaimana kerja terstruktur dan terdelegasi
+    notes_title: Yang akan di-drill
+    notes:
+      - Anatomi modul
+      - Template Functions dari pilot modul
+      - Mode partnership mechanism per bot
+      - Bot role assignment ke cell PARA
+  - key: evidence
+    name: Evidence
+    order: 4
+    summary: deliverable, log, decision trail
+    apa: Bukti bahwa fungsi mewakili nilai
+    isi: Deliverable, log, decision trail, hasil kerja nyata
+    fungsi: Audit — fungsi lo kebukti apa nggak
+  - key: measure
+    name: Measure
+    order: 5
+    summary: KPI, cost, waktu, output
+    apa: Ukuran seberapa baik evidence membuktikan nilai
+    isi: KPI, cost, waktu, output count, numbers yang jelas
+    fungsi: Kuantifikasi performa
+
+feedback_loop:
+  - Pattern di Measure memicu revisit Philosophical
+  - Bot stuck di Functions = indikasi Value misalignment
+  - Partner yang bertumbuh bareng, bukan compliance system
+
+modes:
+  - key: partner
+    name: Partner (primary)
+    points: [Mitra pikir, asertif, boleh nolak, Instruksi seperti kontrak intelektual]
+  - key: staff
+    name: Staff
+    points: [Eksekutor dengan SOP, Patuh gate approval, Instruksi seperti JD + SOP]
+  - key: tool
+    name: Tool
+    points: [Konsisten dan reliable, No opinion, Instruksi seperti manual mesin]
+
+buckets:
+  - key: projects
+    name: Projects
+    subtitle: ada deadline
+    criteria: Ada deadline, bisa selesai. Bukan delivery klien — project improvement, efisiensi, inisiatif internal
+    namespaces:
+      - key: levner
+        name: Levner
+        subtitle: efisiensi
+      - key: social
+        name: Social
+        subtitle: PPAZ, Mardika
+      - key: personal
+        name: Personal
+        subtitle: family trip, self development
+  - key: areas
+    name: Areas
+    subtitle: maintained
+    criteria: Maintained ongoing, nggak ada "selesai". Bucket paling tebal — mayoritas hidup Gugi ada di sini
+    open_items:
+      - Validasi domain yang hilang (Health, Finance, Learning) atau yang perlu di-split
+  - key: resources
+    name: Resources
+    subtitle: knowledge
+    criteria: Knowledge library yang nge-feed Project dan Area. Flat sementara, di-tag per domain nanti
+    items:
+      - name: Obsidian
+        subtitle: notes, insight
+      - name: Library
+        subtitle: SOP, template
+      - name: Memory
+        subtitle: voice, hadith
+    open_items:
+      - Strategi tagging per domain
+      - Integrasi Obsidian ke Gugi OS
+      - Access control antar domain (walls personal vs Levner)
+  - key: archive
+    name: Archive
+    subtitle: kelar, dormant
+    criteria: Project selesai atau Resource retired
+    items:
+      - name: Done
+        subtitle: project kelar
+      - name: Dormant
+        subtitle: retired items
+    open_items:
+      - Retention policy — kapan item otomatis pindah ke Archive
+
+phases:
+  - name: Phase 1
+    period: Okt–Nov 2026
+    status: current
+    description: Selesaikan integrasi konten Grok + shakedown
+    milestones:
+      - title: Integrasi Grok ke dashboard (Content, Stream, Topics)
+        status: done
+      - title: Halaman Framework di Gugi OS
+        status: done
+      - title: Shakedown — Grok mulai menulis ke topic bank dan activity log
+        status: todo
+      - title: Beresin half-applied cut — update Mada, Bima, Jalak, Karsa; hapus bot retired
+        status: todo
+      - title: Repo GitHub private
+        status: todo
+      - title: Rotasi credential integrasi pihak ketiga
+        status: todo
+  - name: Phase 2
+    period: Des 2026
+    status: upcoming
+    description: Drill Functions layer dengan pilot Areas/Brand
+    milestones:
+      - title: Pilih pilot modul (Areas/Brand)
+        status: done
+      - title: Drill Functions layer — anatomi modul detail
+        status: todo
+      - title: Extract template Functions (isi harian, handler, hasil kerja, ukuran)
+        status: todo
+      - title: Regulation set lengkap untuk 1 modul (end-to-end 5 layer)
+        status: todo
+      - title: Map bot Grok ke modul + putuskan nasib tiap bot (retire / keep / merge)
+        status: todo
+      - title: Auth dashboard (login) — privasi
+        status: todo
+  - name: Phase 3
+    period: Jan 2027
+    status: future
+    description: Extract template, drill 1–2 modul lagi
+    milestones:
+      - title: Drill modul kedua (kandidat — Projects/Social/PPAZ atau Areas/Levner-CEO)
+        status: todo
+      - title: Pensiunkan monitoring lama — ekspor, arsip tabel, rombak Brief di atas data Grok
+        status: todo
+      - title: Modul jadi dimensi data (label modul di tabel konten)
+        status: todo
+      - title: Roster bot pindah ke Supabase, menggantikan halaman Agents
+        status: todo
+      - title: Resource tagging strategy + retention policy Project ke Archive
+        status: todo
+  - name: Phase 4
+    period: Feb 2027+
+    status: future
+    description: Framework v1.0 lock + mapping modul untuk semua bot
+    milestones:
+      - title: Formalisasi Philosophical layer + kodifikasi Value layer
+        status: todo
+      - title: Mode switching mechanism per bot
+        status: todo
+      - title: Feedback loop Measure ke Philosophical
+        status: todo
+      - title: Audit framework ala ISO untuk bot workspace
+        status: todo
+      - title: Integrasi Obsidian
+        status: todo
+      - title: Sidebar disusun ulang per PARA dan modul + dependency graph
+        status: todo
+      - title: Framework v1.0 lock
+        status: todo
+
+decisions:
+  - id: D1
+    title: Framework = 2 axis (5-layer + PARA)
+    rationale: Simpel, nggak overlap, cukup untuk kasus
+  - id: D2
+    title: Mode partnership di-nest di Functions layer
+    rationale: Tolak matrix 5×3 — kerumitan nggak sepadan
+  - id: D3
+    title: PARA namespaced per domain
+    rationale: "Multi-identity Gugi: CEO, bapak, muslim, brand, dll"
+  - id: D4
+    title: Resources flat sementara
+    rationale: Tunda tagging strategy, fokus bucket utama dulu
+  - id: D5
+    title: Obsidian integration ditunda
+    rationale: Nanti setelah Gugi OS ready
+  - id: D6
+    title: Build per modul, iteratif
+    rationale: Bangun satu kotak dulu, extract template
+  - id: D7
+    title: "Entry drill berikutnya: Functions layer"
+    rationale: Paling actionable, langsung bisa map ke bot existing
+  - id: D8
+    title: "Philosophical orientation: Partnership"
+    rationale: Bukan tool-first; bot bertumbuh bareng Gugi
+  - id: D9
+    title: Fokus Grok dulu, ekosistem lain menyusul
+    rationale: Beresin satu domain penuh, baru lanjut
+
+principles:
+  - One front door — Gugi punya satu titik masuk per workstream
+  - Partnership > Automation — bot menemani proses, bukan sekadar gantiin
+  - Self-awareness as data — insight partner-mode bisa jadi input staff-mode
+  - Iterative, bukan upfront finalization — bangun satu modul dulu, generalize nanti
+  - Verdict first, "tipis-tipis" — gaya komunikasi semua bot
+  - Nggak boleh ngarang — asumsi harus di-flag
+  - Approval gate — nothing sent/posted/paid tanpa OK eksplisit dari Gugi
+  - WIB real clock — tanggal dan jam dari clock, bukan asumsi
+  - Rupiah untuk cost — format Indonesia
+  - Walls antara personal dan Levner — tidak boleh cross-contamination
+
+# Peta halaman dashboard: posisi tiap halaman di framework.
+pages:
+  - group: Overview
+    links:
+      - { href: /, label: "Today's Brief", note: akan dirombak di atas data Grok }
+      - { href: /framework, label: Framework, note: halaman ini }
+  - group: Areas/Brand
+    links:
+      - { href: /content, label: Content Pipeline }
+      - { href: /content-stream, label: Content Stream }
+      - { href: /topics, label: Topics }
+  - group: Legacy monitoring (akan dirombak)
+    links:
+      - { href: /cron, label: Cron Jobs }
+      - { href: /agents, label: Agents }
+      - { href: /tasks, label: Tasks }
+      - { href: /sync-log, label: Sync Log }

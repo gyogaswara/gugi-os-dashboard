@@ -1,0 +1,53 @@
+# Roster bot Grok. Bot = kapabilitas, bukan milik bucket: satu bot bisa melayani banyak modul.
+# status: active | outdated (masih instruksi lama) | retired | unknown
+# default_mode: partner | staff | tool | null (belum didefinisikan)
+# Sumber: Gugi OS Framework v0.1. Daftar belum lengkap (dokumen menyebut 13 bot aktif).
+
+bots:
+  - name: Warta
+    role: Writer / content lead
+    status: active
+    default_mode: partner
+    modules: [areas-brand]
+  - name: Sandi
+    role: Research
+    status: active
+    default_mode: staff
+    modules: [areas-brand]
+  - name: Rupa
+    role: Visual
+    status: active
+    default_mode: tool
+    modules: [areas-brand]
+  - name: Laras
+    role: Personal lead
+    status: active
+    default_mode: null
+    modules: []
+  - name: Wastu
+    role: Team designer
+    status: active
+    default_mode: null
+    modules: []
+  - name: Mada
+    role: Orchestrator
+    status: outdated
+    default_mode: null
+    modules: []
+  - name: Karsa
+    role: Belum didefinisikan
+    status: outdated
+    default_mode: null
+    modules: []
+  - name: Bima
+    role: Belum didefinisikan
+    status: outdated
+    default_mode: null
+    modules: []
+  - name: Jalak
+    role: Belum didefinisikan
+    status: outdated
+    default_mode: null
+    modules: []
+
+retired: [Netra, Rasa, Designer 2, Pandu]
